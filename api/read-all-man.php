@@ -3,9 +3,9 @@ require "../autoload.php";
 
 header("Content-Type: application/json");
 
-use App\Models\Post;
+use App\Models\Manufacturer;
 
-$allposts = post::getAllPosts();
+$allposts = Manufacturer::getAllPosts();
 
 $arr = [];
 $arr["data"] = [];

@@ -3,7 +3,7 @@ require "../autoload.php";
 
 header("Content-Type: application/json");
 
-use App\Models\Post;
+use App\Models\Model;
 
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -15,7 +15,7 @@ if(!$id){
         "message" => "Error, Invalid index"
     ]);
 } else{
-    $post = Post::getSinglePost($id);
+    $post = Model::getSinglePost($id);
     if(!$post){
         echo json_encode([
             "status" => false,

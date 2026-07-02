@@ -25,7 +25,7 @@ spl_autoload_register(function($class): void{
 );
 
 use App\Core\Database;
-use App\Models\Post;
+use App\Models\Manufacturer;
 
 Database::connect();
 ?>
