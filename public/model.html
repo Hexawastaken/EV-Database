@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EV Database — Model</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f6f6f3;
+        --surface: #ffffff;
+        --line: #e6e5e0;
+        --text: #16181c;
+        --muted: #767a7f;
+        --accent: #2547f4;
+        --accent-soft: #eaedfe;
+        --gauge-track: #eceef4;
+        --display: "Space Grotesk", sans-serif;
+        --body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--body);
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      nav {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 14px 32px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+      }
+      .nav-brand {
+        grid-column: 2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-self: center;
+      }
+      .logo-slot {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo-slot img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .logo-fallback {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--text);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 10px;
+        letter-spacing: 0.02em;
+      }
+      .nav-brand h1 {
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .nav-right {
+        grid-column: 3;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+      }
+      .login-btn {
+        background: var(--text);
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 9px 18px;
+        font-family: var(--body);
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .login-btn:hover {
+        background: #000;
+      }
+      .settings-btn {
+        background: none;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        border-radius: 7px;
+        width: 34px;
+        height: 34px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .settings-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .settings-pop {
+        position: absolute;
+        right: 0;
+        top: 44px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        display: none;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        z-index: 30;
+      }
+      .settings-pop.show {
+        display: block;
+      }
+      .settings-pop label {
+        font-size: 11px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 5px;
+      }
+      .settings-pop input {
+        font-family: var(--body);
+        font-size: 12px;
+        padding: 7px 9px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        width: 180px;
+        margin-bottom: 8px;
+      }
+      .settings-pop button {
+        width: 100%;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 7px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .shell {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 26px 32px 70px;
+      }
+      @media (max-width: 600px) {
+        .shell {
+          padding: 20px 16px 50px;
+        }
+        nav {
+          padding: 12px 16px;
+        }
+      }
+
+      .breadcrumb {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-bottom: 18px;
+      }
+      .breadcrumb a:hover {
+        color: var(--accent);
+      }
+      .breadcrumb .sep {
+        margin: 0 6px;
+        opacity: 0.5;
+      }
+
+      #stateMsg {
+        padding: 60px 20px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      #content {
+        display: none;
+      }
+
+      .hero {
+        display: flex;
+        gap: 28px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 22px;
+        align-items: center;
+      }
+      @media (max-width: 720px) {
+        .hero {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+      .hero-thumb {
+        flex: 0 0 300px;
+        aspect-ratio: 16/10;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #f1f2f6, #e9eaf0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+      .hero-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .hero-thumb .placeholder-svg {
+        width: 62%;
+        color: #b7bcc8;
+      }
+      .hero-thumb .no-image-text {
+        color: #b7bcc8;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        padding: 20px;
+      }
+      .hero-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .hero-eyebrow {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .hero-title {
+        font-family: var(--display);
+        font-size: 32px;
+        font-weight: 700;
+        margin: 4px 0 12px;
+        letter-spacing: -0.01em;
+      }
+      .hero-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .chip {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 5px 11px;
+        border-radius: 20px;
+      }
+      .hero-price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .hero-price {
+        font-family: var(--display);
+        font-size: 26px;
+        font-weight: 700;
+      }
+      .hero-price-label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .gauge {
+        max-width: 320px;
+        margin-top: 16px;
+      }
+      .gauge-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .gauge-track {
+        height: 6px;
+        background: var(--gauge-track);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .gauge-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 3px;
+      }
+
+      .section-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      @media (max-width: 820px) {
+        .section-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .spec-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 20px;
+      }
+      .spec-card h3 {
+        font-family: var(--display);
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+      }
+      .spec-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 13.5px;
+      }
+      .spec-row:last-child {
+        border-bottom: none;
+      }
+      .spec-row .k {
+        color: var(--muted);
+      }
+      .spec-row .v {
+        font-weight: 600;
+        text-align: right;
+      }
+
+      .fk-note {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-brand">
+        <div class="logo-slot">
+          <img
+            src="logo.png"
+            alt="Saipa"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.style.display = 'flex';
+            "
+          />
+          <div class="logo-fallback" style="display: none">SAIPA</div>
+        </div>
+        <h1>EV Database</h1>
+      </div>
+      <div class="nav-right">
+        <button class="settings-btn" id="settingsBtn" title="API settings">
+          ⚙
+        </button>
+        <button class="login-btn" id="loginBtn">Log in</button>
+        <div class="settings-pop" id="settingsPop">
+          <label>API base path</label>
+          <input id="apiBase" type="text" value="../api" />
+          <button id="saveApiBase">Save</button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="shell">
+      <div class="breadcrumb">
+        <a href="index.html">All Brands</a><span class="sep">/</span
+        ><span id="crumbBrand">…</span><span class="sep">/</span
+        ><span id="crumbModel">…</span>
+      </div>
+
+      <div id="stateMsg">Loading model…</div>
+
+      <div id="content">
+        <div class="hero">
+          <div class="hero-thumb" id="heroThumb"></div>
+          <div class="hero-info">
+            <div class="hero-eyebrow" id="brandName">—</div>
+            <div class="hero-title" id="modelName">—</div>
+            <div class="hero-chips" id="chips"></div>
+            <div class="hero-price-row">
+              <span class="hero-price" id="priceVal">—</span>
+              <span class="hero-price-label">estimated price</span>
+            </div>
+            <div class="gauge">
+              <div class="gauge-labels">
+                <span>CLTC range</span><span id="rangeLabel">—</span>
+              </div>
+              <div class="gauge-track">
+                <div class="gauge-fill" id="rangeFill" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <div class="spec-card">
+            <h3>Performance</h3>
+            <div class="spec-row">
+              <span class="k">Motor power</span
+              ><span class="v" id="s-power">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Torque</span
+              ><span class="v" id="s-torque">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Top speed</span
+              ><span class="v" id="s-topspeed">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">0–100 km/h</span
+              ><span class="v" id="s-zerohundred">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Drive type</span
+              ><span class="v" id="s-drivetype">—</span>
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <h3>Battery &amp; charging</h3>
+            <div class="spec-row">
+              <span class="k">Battery capacity</span
+              ><span class="v" id="s-battery">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Cell chemistry</span
+              ><span class="v" id="s-chemistry">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Cell shape</span
+              ><span class="v" id="s-cellshape">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Cooling method</span
+              ><span class="v" id="s-cooling">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Fast charging</span
+              ><span class="v" id="s-fastcharge">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">AC charging</span
+              ><span class="v" id="s-accharge">—</span>
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <h3>Ownership</h3>
+            <div class="spec-row">
+              <span class="k">Powertrain</span
+              ><span class="v" id="s-powertrain">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Vehicle class</span
+              ><span class="v" id="s-class">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Release year</span
+              ><span class="v" id="s-year">—</span>
+            </div>
+            <div class="spec-row">
+              <span class="k">Warranty</span
+              ><span class="v" id="s-warranty">—</span>
+            </div>
+            <div class="fk-note">
+              Powertrain, class, and drive type are now looked up from their
+              respective tables.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var API_BASE = "../api/";
+
+        var settingsBtn = document.getElementById("settingsBtn");
+        var settingsPop = document.getElementById("settingsPop");
+        document
+          .getElementById("settingsBtn")
+          .addEventListener("click", function () {
+            settingsPop.classList.toggle("show");
+          });
+        document
+          .getElementById("saveApiBase")
+          .addEventListener("click", function () {
+            API_BASE = document.getElementById("apiBase").value.trim();
+            if (API_BASE && !API_BASE.endsWith("/")) API_BASE += "/";
+            settingsPop.classList.remove("show");
+            loadModel();
+          });
+        document
+          .getElementById("loginBtn")
+          .addEventListener("click", function () {
+            alert(
+              "Admin login goes here — drop your login code in for #loginBtn.",
+            );
+          });
+
+        // SVG placeholder for when no image is available
+        var CAR_SVG =
+          '<svg class="placeholder-svg" viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+          '<path d="M6 26 L10 15 Q12 11 18 11 H40 Q46 11 49 15 L54 24" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>' +
+          '<path d="M4 26 H58 Q60 26 60 28 V30 Q60 32 58 32 H4 Q2 32 2 30 V28 Q2 26 4 26 Z" fill="currentColor" opacity="0.15"/>' +
+          '<path d="M4 26 H58" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>' +
+          '<circle cx="16" cy="32" r="5" fill="none" stroke="currentColor" stroke-width="2.2"/>' +
+          '<circle cx="46" cy="32" r="5" fill="none" stroke="currentColor" stroke-width="2.2"/>' +
+          '<path d="M20 12 V20 M34 12 V20" stroke="currentColor" stroke-width="1.6" opacity="0.5"/>' +
+          "</svg>";
+
+        // Cache for lookup data
+        var lookupCache = {
+          powertrain: {},
+          vehicleClass: {},
+          driveType: {},
+        };
+
+        function escapeHtml(str) {
+          if (str === null || str === undefined) return "";
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+        function setText(id, val) {
+          document.getElementById(id).textContent = val;
+        }
+
+        function getParam(name) {
+          var params = new URLSearchParams(window.location.search);
+          return params.get(name);
+        }
+
+        // Fetch lookup data for a single ID from a given endpoint
+        function fetchLookup(endpoint, id, cacheKey) {
+          if (!id || id === "null" || id === "undefined") {
+            return Promise.resolve(null);
+          }
+
+          // Check cache first
+          if (lookupCache[cacheKey] && lookupCache[cacheKey][id]) {
+            return Promise.resolve(lookupCache[cacheKey][id]);
+          }
+
+          return fetch(API_BASE + endpoint + "?id=" + encodeURIComponent(id))
+            .then(function (r) {
+              if (!r.ok) throw new Error("Network error");
+              return r.json();
+            })
+            .then(function (json) {
+              if (json.status && json.post) {
+                // Cache the result
+                if (!lookupCache[cacheKey]) lookupCache[cacheKey] = {};
+                lookupCache[cacheKey][id] = json.post;
+                return json.post;
+              }
+              return null;
+            })
+            .catch(function () {
+              return null;
+            });
+        }
+
+        // Fetch all needed lookup data in parallel
+        function fetchAllLookups(model) {
+          var promises = [];
+
+          // Fetch powertrain type
+          if (model.powertrain_id) {
+            promises.push(
+              fetchLookup(
+                "read-powertrain.php",
+                model.powertrain_id,
+                "powertrain",
+              ).then(function (data) {
+                model._powertrain = data;
+              }),
+            );
+          }
+
+          // Fetch vehicle class
+          if (model.class_id) {
+            promises.push(
+              fetchLookup(
+                "read-class.php",
+                model.class_id,
+                "vehicleClass",
+              ).then(function (data) {
+                model._class = data;
+              }),
+            );
+          }
+
+          // Fetch drive type
+          if (model.drive_type_id) {
+            promises.push(
+              fetchLookup(
+                "read-drive.php",
+                model.drive_type_id,
+                "driveType",
+              ).then(function (data) {
+                model._driveType = data;
+              }),
+            );
+          }
+
+          return Promise.all(promises).then(function () {
+            return model;
+          });
+        }
+
+        // Render the hero thumbnail with image or SVG placeholder
+        function renderThumbnail(imgUrl, modelName) {
+          var heroThumb = document.getElementById("heroThumb");
+
+          // Clear previous content
+          heroThumb.innerHTML = "";
+
+          if (
+            imgUrl &&
+            imgUrl.trim() !== "" &&
+            imgUrl !== "NULL" &&
+            imgUrl !== "null"
+          ) {
+            // Create image element
+            var img = document.createElement("img");
+            img.src = imgUrl;
+            img.alt = modelName || "Vehicle image";
+            img.loading = "lazy";
+
+            // Handle image load error - show SVG placeholder
+            img.onerror = function () {
+              heroThumb.innerHTML = CAR_SVG;
+            };
+
+            heroThumb.appendChild(img);
+          } else {
+            // No image URL, show SVG placeholder
+            heroThumb.innerHTML = CAR_SVG;
+          }
+        }
+
+        function loadModel() {
+          var id = getParam("id");
+          var stateMsg = document.getElementById("stateMsg");
+          var content = document.getElementById("content");
+          content.style.display = "none";
+
+          if (!id) {
+            stateMsg.style.display = "block";
+            stateMsg.textContent =
+              "No model selected. Go back to All Brands and pick one.";
+            return;
+          }
+
+          stateMsg.style.display = "block";
+          stateMsg.textContent = "Loading model…";
+
+          fetch(API_BASE + "read-model.php?id=" + encodeURIComponent(id))
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (json) {
+              if (!json.status || !json.post) {
+                stateMsg.textContent = json.message || "Model not found.";
+                return;
+              }
+              var m = json.post;
+
+              // Fetch manufacturer name
+              return fetch(
+                API_BASE +
+                  "read-man.php?id=" +
+                  encodeURIComponent(m.manufacturer_id),
+              )
+                .then(function (r) {
+                  return r.json();
+                })
+                .then(function (manJson) {
+                  var brandName =
+                    manJson.status && manJson.post
+                      ? manJson.post.name
+                      : "Unknown brand";
+
+                  // Now fetch all the lookup data
+                  return fetchAllLookups(m).then(function (modelWithLookups) {
+                    render(modelWithLookups, brandName);
+                  });
+                });
+            })
+            .catch(function (err) {
+              stateMsg.textContent =
+                "Could not reach the API. Check the ⚙ API settings. Error: " +
+                err.message;
+            });
+        }
+
+        function render(m, brandName) {
+          document.getElementById("stateMsg").style.display = "none";
+          document.getElementById("content").style.display = "block";
+
+          document.getElementById("crumbBrand").textContent = brandName;
+          document.getElementById("crumbModel").textContent = m.model_name;
+          setText("brandName", brandName);
+          setText("modelName", m.model_name);
+
+          // Render the thumbnail with image if available
+          renderThumbnail(m.img_url, m.model_name);
+
+          var chips = document.getElementById("chips");
+          chips.innerHTML =
+            '<span class="chip">' +
+            escapeHtml(m.release_year) +
+            "</span>" +
+            '<span class="chip">' +
+            escapeHtml(m.cltc_range) +
+            " km range</span>" +
+            '<span class="chip">' +
+            escapeHtml(m.top_speed) +
+            " km/h top speed</span>";
+
+          var price = Number(m.price);
+          setText(
+            "priceVal",
+            isNaN(price) ? "—" : "$" + price.toLocaleString(),
+          );
+
+          setText("rangeLabel", m.cltc_range + " km");
+          var pct = Math.max(
+            4,
+            Math.min(
+              100,
+              Math.round(((Number(m.cltc_range) || 0) / 800) * 100),
+            ),
+          );
+          document.getElementById("rangeFill").style.width = pct + "%";
+
+          setText("s-power", m.e_power + " kW");
+          setText("s-torque", m.e_torque + " Nm");
+          setText("s-topspeed", m.top_speed + " km/h");
+          setText("s-zerohundred", m.zero_to_hundred + " s");
+
+          // Drive type - use lookup data
+          var driveTypeName = "—";
+          if (m._driveType && m._driveType.name) {
+            driveTypeName =
+              m._driveType.name +
+              (m._driveType.description
+                ? " (" + m._driveType.description + ")"
+                : "");
+          }
+          setText("s-drivetype", driveTypeName);
+
+          setText("s-battery", m.battery_capacity + " kWh");
+          setText("s-chemistry", m.cell_chemistry);
+          setText("s-cellshape", m.cell_shape);
+          setText("s-cooling", m.cooling_method);
+          setText("s-fastcharge", m.fast_charging_time);
+          setText("s-accharge", m.ac_charging_time);
+
+          // Powertrain - use lookup data
+          var powertrainName = "—";
+          if (m._powertrain && m._powertrain.name) {
+            powertrainName =
+              m._powertrain.name +
+              (m._powertrain.description
+                ? " (" + m._powertrain.description + ")"
+                : "");
+          }
+          setText("s-powertrain", powertrainName);
+
+          // Vehicle class - use lookup data
+          var className = "—";
+          if (m._class && m._class.name) {
+            className =
+              m._class.name +
+              (m._class.category ? " (" + m._class.category + ")" : "");
+          }
+          setText("s-class", className);
+
+          setText("s-year", m.release_year);
+          setText("s-warranty", m.warranty_years + " yr");
+
+          document.title = m.model_name + " — EV Database";
+        }
+
+        loadModel();
+      })();
+    </script>
+  </body>
+</html>

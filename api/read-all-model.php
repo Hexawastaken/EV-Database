@@ -32,7 +32,9 @@ if(!empty($allposts)){
             "cell_chemistry" => $post["cell_chemistry"],
             "fast_charging_time" => $post["fast_charging_time"],
             "ac_charging_time" => $post["ac_charging_time"],
-            "warranty_years" => $post["warranty_years"]
+            "warranty_years" => $post["warranty_years"],
+            "id" => $post["id"],
+            "img_url" => $post["img_url"]
         ];
 
         $arr["data"][] = $post_item;
