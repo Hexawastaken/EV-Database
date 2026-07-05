@@ -24,13 +24,13 @@ class Manufacturer{
     }
 
     //Creating a new manufacturer
-    public static function createPost($name, $country) {
+    public static function createPost($name, $country, $logo_url) {
     try {
         $pdo = Database::connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $sql = "INSERT INTO manufacturers (name, country) VALUES (?, ?)";
         $stmt = $pdo->prepare($sql);
-        $success = $stmt->execute([$name, $country]);
+        $success = $stmt->execute([$name, $country, $logo_url]);
         return $success; // boolean
     }   
     catch (PDOException $e) {

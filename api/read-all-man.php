@@ -7,8 +7,7 @@ use App\Models\Manufacturer;
 
 $allposts = Manufacturer::getAllPosts();
 
-$arr = [];
-$arr["data"] = [];
+$arr = ["status" => true, "data" => []];
 
 if(!empty($allposts)){
 
@@ -17,6 +16,7 @@ if(!empty($allposts)){
             "id" => $post["id"],
             "name" => $post["name"],
             "country" => $post["country"],
+            "logo_url" => $post["logo_url"]
         ];
 
         $arr["data"][] = $post_item;
@@ -26,6 +26,6 @@ if(!empty($allposts)){
 }else{
     echo json_encode([
         "data" => [],
-        "message" => "no posts for now"
+        "status" => false
     ]);
 }

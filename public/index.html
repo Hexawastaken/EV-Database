@@ -111,61 +111,6 @@
       .login-btn:hover {
         background: #000;
       }
-      .settings-btn {
-        background: none;
-        border: 1px solid var(--line);
-        color: var(--muted);
-        border-radius: 7px;
-        width: 34px;
-        height: 34px;
-        cursor: pointer;
-        font-size: 14px;
-      }
-      .settings-btn:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-      }
-      .settings-pop {
-        position: absolute;
-        right: 0;
-        top: 44px;
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 12px;
-        display: none;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        z-index: 30;
-      }
-      .settings-pop.show {
-        display: block;
-      }
-      .settings-pop label {
-        font-size: 11px;
-        color: var(--muted);
-        display: block;
-        margin-bottom: 5px;
-      }
-      .settings-pop input {
-        font-family: var(--body);
-        font-size: 12px;
-        padding: 7px 9px;
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        width: 180px;
-        margin-bottom: 8px;
-      }
-      .settings-pop button {
-        width: 100%;
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        padding: 7px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-      }
 
       /* ---- SEARCH STRIP ---- */
       .search-strip {
@@ -209,7 +154,7 @@
 
       /* sidebar */
       .sidebar {
-        width: 230px;
+        width: 280px;
         flex-shrink: 0;
       }
       .sidebar-search {
@@ -235,11 +180,9 @@
         background: none;
       }
       .man-list {
-        max-height: 560px;
+        max-height: 700px; /* was 560px — increase to your liking */
         overflow-y: auto;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: var(--surface);
+        /* ... other styles ... */
       }
       .man-item {
         padding: 10px 14px;
@@ -247,8 +190,8 @@
         cursor: pointer;
         border-bottom: 1px solid var(--line);
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 8px;
         color: var(--text);
       }
       .man-item:last-child {
@@ -262,9 +205,25 @@
         color: #fff;
         font-weight: 600;
       }
+      .man-item .brand-logo {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+        border-radius: 4px;
+        object-fit: contain;
+        background: #f0f0f0;
+      }
+      .man-item .brand-name {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .man-item .count {
         font-size: 11px;
         color: var(--muted);
+        flex-shrink: 0;
+        margin-left: auto;
       }
       .man-item.active .count {
         color: rgba(255, 255, 255, 0.75);
@@ -458,16 +417,7 @@
         <h1>EV Database</h1>
       </div>
       <div class="nav-right">
-        <button class="settings-btn" id="settingsBtn" title="API settings">
-          ⚙
-        </button>
-        <!-- Login button placeholder — drop in your login code in for #loginBtn. -->
         <button class="login-btn" id="loginBtn">Log in</button>
-        <div class="settings-pop" id="settingsPop">
-          <label>API base path</label>
-          <input id="apiBase" type="text" value="../api" />
-          <button id="saveApiBase">Save</button>
-        </div>
       </div>
     </nav>
 
@@ -509,7 +459,7 @@
           <input id="brandFilter" type="text" placeholder="Type brand..." />
         </div>
         <div class="man-list" id="manList">
-          <div class="man-item active" data-id="">All Brands</div>
+          <div class="man-item active" data-id="">Loading brands...</div>
         </div>
       </aside>
 
@@ -556,26 +506,10 @@
     <script>
       (function () {
         var API_BASE = "../api/";
-        var manufacturers = []; // {id, name}
-        var manMap = {}; // id -> name
-        var models = []; // raw model list
+        var manufacturers = [];
+        var manMap = {};
+        var models = [];
         var activeManufacturerId = "";
-
-        // ---- settings popover ----
-        var settingsBtn = document.getElementById("settingsBtn");
-        var settingsPop = document.getElementById("settingsPop");
-        var apiBaseInput = document.getElementById("apiBase");
-        settingsBtn.addEventListener("click", function () {
-          settingsPop.classList.toggle("show");
-        });
-        document
-          .getElementById("saveApiBase")
-          .addEventListener("click", function () {
-            API_BASE = document.getElementById("apiBase").value.trim();
-            if (API_BASE && !API_BASE.endsWith("/")) API_BASE += "/";
-            settingsPop.classList.remove("show");
-            loadAll();
-          });
 
         // ---- login button placeholder ----
         document
@@ -597,6 +531,10 @@
           '<path d="M20 12 V20 M34 12 V20" stroke="currentColor" stroke-width="1.6" opacity="0.5"/>' +
           "</svg>";
 
+        // ---- placeholder logo (temporary) ----
+        var LOGO_PLACEHOLDER =
+          'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%23eee"/%3E%3Ctext x="20" y="26" font-size="20" text-anchor="middle" fill="%23999"%3E🚗%3C/text%3E%3C/svg%3E';
+
         function escapeHtml(str) {
           if (str === null || str === undefined) return "";
           return String(str)
@@ -604,6 +542,75 @@
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;");
+        }
+
+        // ---- render sidebar (with fallback) ----
+        function renderSidebar() {
+          var manList = document.getElementById("manList");
+
+          try {
+            var counts = {};
+            models.forEach(function (m) {
+              counts[m.manufacturer_id] = (counts[m.manufacturer_id] || 0) + 1;
+            });
+
+            var html =
+              '<div class="man-item' +
+              (activeManufacturerId === "" ? " active" : "") +
+              '" data-id="">' +
+              '<span class="brand-name">All Brands</span>' +
+              '<span class="count">' +
+              models.length +
+              "</span></div>";
+
+            if (manufacturers && manufacturers.length > 0) {
+              manufacturers.forEach(function (m) {
+                var isActive = String(activeManufacturerId) === String(m.id);
+                var logoUrl = m.logo_url || LOGO_PLACEHOLDER;
+                html +=
+                  '<div class="man-item' +
+                  (isActive ? " active" : "") +
+                  '" data-id="' +
+                  m.id +
+                  '">' +
+                  '<img class="brand-logo" src="' +
+                  logoUrl +
+                  '" alt="' +
+                  escapeHtml(m.name) +
+                  ' logo" onerror="this.src=\'' +
+                  LOGO_PLACEHOLDER +
+                  "'\" />" +
+                  '<span class="brand-name">' +
+                  escapeHtml(m.name) +
+                  "</span>" +
+                  '<span class="count">' +
+                  (counts[m.id] || 0) +
+                  "</span>" +
+                  "</div>";
+              });
+            } else {
+              // Fallback if no manufacturers
+              html +=
+                '<div class="man-item" style="color:var(--muted);cursor:default;">No brands found</div>';
+            }
+
+            manList.innerHTML = html;
+
+            // Add click events
+            manList
+              .querySelectorAll(".man-item[data-id]")
+              .forEach(function (item) {
+                item.addEventListener("click", function () {
+                  activeManufacturerId = item.dataset.id;
+                  renderSidebar();
+                  applyFilters();
+                });
+              });
+          } catch (error) {
+            console.error("Error rendering sidebar:", error);
+            manList.innerHTML =
+              '<div class="man-item" style="color:var(--error);cursor:default;">Error loading brands</div>';
+          }
         }
 
         // ---- load data ----
@@ -614,88 +621,65 @@
           Promise.all([
             fetch(API_BASE + "read-all-man.php")
               .then(function (r) {
+                if (!r.ok) throw new Error("HTTP " + r.status);
                 return r.json();
               })
-              .catch(function () {
+              .catch(function (err) {
+                console.error("Manufacturers API error:", err);
                 return { data: [] };
               }),
             fetch(API_BASE + "read-all-model.php")
               .then(function (r) {
+                if (!r.ok) throw new Error("HTTP " + r.status);
                 return r.json();
               })
-              .catch(function () {
+              .catch(function (err) {
+                console.error("Models API error:", err);
                 return { data: [] };
               }),
           ])
             .then(function (results) {
-              manufacturers = results[0].data || [];
-              models = results[1].data || [];
+              // Safely extract data
+              manufacturers = (results[0] && results[0].data) || [];
+              models = (results[1] && results[1].data) || [];
 
-              // Debug: Log the first model to check if img_url is present
-              if (models.length > 0) {
-                console.log("First model data:", models[0]);
-                console.log("img_url:", models[0].img_url);
-              }
-
+              // Build manufacturer map
               manMap = {};
               manufacturers.forEach(function (m) {
-                manMap[m.id] = m.name;
+                if (m && m.id) {
+                  manMap[m.id] = m.name || "Unknown";
+                }
               });
+
+              // Render sidebar and grid
               renderSidebar();
               applyFilters();
+
+              // Log for debugging
+              console.log("Loaded " + manufacturers.length + " manufacturers");
+              console.log("Loaded " + models.length + " models");
             })
             .catch(function (error) {
               console.error("Error loading data:", error);
               document.getElementById("grid").innerHTML =
-                '<div class="empty-state">Could not reach the API. Check the ⚙ API settings.</div>';
-            });
-        }
-
-        // ---- sidebar ----
-        function renderSidebar() {
-          var counts = {};
-          models.forEach(function (m) {
-            counts[m.manufacturer_id] = (counts[m.manufacturer_id] || 0) + 1;
-          });
-
-          var html =
-            '<div class="man-item' +
-            (activeManufacturerId === "" ? " active" : "") +
-            '" data-id="">All Brands <span class="count">' +
-            models.length +
-            "</span></div>";
-          manufacturers.forEach(function (m) {
-            html +=
-              '<div class="man-item' +
-              (String(activeManufacturerId) === String(m.id) ? " active" : "") +
-              '" data-id="' +
-              m.id +
-              '">' +
-              escapeHtml(m.name) +
-              ' <span class="count">' +
-              (counts[m.id] || 0) +
-              "</span></div>";
-          });
-          var manList = document.getElementById("manList");
-          manList.innerHTML = html;
-          manList.querySelectorAll(".man-item").forEach(function (item) {
-            item.addEventListener("click", function () {
-              activeManufacturerId = item.dataset.id;
+                '<div class="empty-state">Could not reach the API. Check that your API is running.</div>';
+              // Still render sidebar with whatever data we have
               renderSidebar();
-              applyFilters();
             });
-          });
         }
 
+        // ---- brand filter ----
         document
           .getElementById("brandFilter")
           .addEventListener("input", function (e) {
             var q = e.target.value.toLowerCase();
-            document.querySelectorAll(".man-item").forEach(function (item) {
-              if (item.dataset.id === "") return;
-              var name = item.textContent.toLowerCase();
-              item.style.display = name.indexOf(q) === -1 ? "none" : "flex";
-            });
+            document
+              .querySelectorAll(".man-item[data-id]")
+              .forEach(function (item) {
+                if (item.dataset.id === "") return;
+                var name = item.textContent.toLowerCase();
+                item.style.display = name.indexOf(q) === -1 ? "none" : "flex";
+              });
           });
 
         // ---- filters ----
@@ -768,7 +752,7 @@
             if (sort === "price-desc") return Number(b.price) - Number(a.price);
             if (sort === "range-desc")
               return Number(b.cltc_range) - Number(a.cltc_range);
-            return Number(b.release_year) - Number(a.release_year); // newest
+            return Number(b.release_year) - Number(a.release_year);
           });
 
           renderGrid(filtered);
@@ -804,23 +788,19 @@
             var price = Number(m.price);
             var priceText = isNaN(price) ? "—" : "$" + price.toLocaleString();
 
-            // Build the card HTML with image handling
             var cardHtml =
               '<a class="card" href="model.html?id=' +
               encodeURIComponent(m.id) +
               '">';
 
-            // Thumbnail section - ONLY show image OR SVG, not both
             cardHtml += '<div class="card-thumb" id="thumb-' + m.id + '">';
 
-            // Check if img_url exists and is not null/empty
             if (
               m.img_url &&
               m.img_url.trim() !== "" &&
               m.img_url !== "NULL" &&
               m.img_url !== "null"
             ) {
-              // Add image (only the image, no SVG)
               var imgSrc = escapeHtml(m.img_url);
               cardHtml +=
                 '<img src="' +
@@ -831,13 +811,11 @@
                 CAR_SVG.replace(/'/g, "\\'").replace(/"/g, "&quot;") +
                 "';\">";
             } else {
-              // No image, only show SVG
               cardHtml += CAR_SVG;
             }
 
             cardHtml += "</div>";
 
-            // Card body
             cardHtml +=
               '<div class="card-body">' +
               '<div class="card-eyebrow">' +
@@ -871,6 +849,7 @@
           grid.innerHTML = gridHtml;
         }
 
+        // ---- Start ----
         loadAll();
       })();
     </script>

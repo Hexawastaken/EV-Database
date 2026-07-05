@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Model — EV Database</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f6f6f3;
+        --surface: #ffffff;
+        --line: #e6e5e0;
+        --text: #16181c;
+        --muted: #767a7f;
+        --accent: #2547f4;
+        --accent-soft: #eaedfe;
+        --success: #1a8a6c;
+        --error: #b13e4b;
+        --display: "Space Grotesk", sans-serif;
+        --body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--body);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      nav {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 14px 32px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+      }
+      .nav-brand {
+        grid-column: 2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-self: center;
+      }
+      .logo-slot {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo-slot img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .logo-fallback {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--text);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 10px;
+        letter-spacing: 0.02em;
+      }
+      .nav-brand h1 {
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+
+      .shell {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px 32px 60px;
+      }
+
+      .breadcrumb {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-bottom: 20px;
+      }
+      .breadcrumb .sep {
+        margin: 0 6px;
+        opacity: 0.5;
+      }
+
+      .edit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .edit-header h1 {
+        font-family: var(--display);
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+
+      .form-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 28px 32px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px 28px;
+      }
+      @media (max-width: 700px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .shell {
+          padding: 20px 16px 40px;
+        }
+        .form-card {
+          padding: 20px 16px;
+        }
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-group label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        font-family: var(--body);
+        font-size: 14px;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--bg);
+        color: var(--text);
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+        width: 100%;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 71, 244, 0.1);
+        background: var(--surface);
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 60px;
+      }
+
+      .form-group .hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 11px 28px;
+        border: none;
+        border-radius: 8px;
+        font-family: var(--body);
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #1a3ad4;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 71, 244, 0.25);
+      }
+
+      .btn-secondary {
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+      .btn-secondary:hover {
+        background: var(--line);
+      }
+
+      .btn-success {
+        background: var(--success);
+        color: #fff;
+      }
+      .btn-success:hover {
+        background: #147a5e;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(26, 138, 108, 0.25);
+      }
+
+      .btn-danger {
+        background: var(--error);
+        color: #fff;
+      }
+      .btn-danger:hover {
+        background: #9a3340;
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      #messageBox {
+        margin-top: 16px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+      }
+      #messageBox.show {
+        display: block;
+      }
+      #messageBox.success {
+        background: #e6f4ef;
+        color: var(--success);
+        border: 1px solid #b8dfd2;
+      }
+      #messageBox.error {
+        background: #fde8ea;
+        color: var(--error);
+        border: 1px solid #f5c8cc;
+      }
+      #messageBox.loading {
+        background: #e8ecf5;
+        color: var(--muted);
+        border: 1px solid #d0d8e8;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .delete-section {
+        margin-top: 30px;
+        padding-top: 24px;
+        border-top: 2px dashed #f0c8cc;
+      }
+      .delete-section h3 {
+        color: var(--error);
+        font-size: 14px;
+        margin: 0 0 8px 0;
+      }
+      .delete-section p {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0 0 12px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-brand">
+        <div class="logo-slot">
+          <img
+            src="./Pictures/Saipa-logo-BF808B7974-seeklogo.com.png"
+            alt="Saipa"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.style.display = 'flex';
+            "
+          />
+          <div class="logo-fallback" style="display: none">SAIPA</div>
+        </div>
+        <h1>EV Database</h1>
+      </div>
+    </nav>
+
+    <div class="shell">
+      <div class="breadcrumb">
+        <a href="index.html">All Models</a><span class="sep">/</span>
+        <a id="modelLink" href="#">Model</a><span class="sep">/</span>
+        <span>Edit</span>
+      </div>
+
+      <div class="edit-header">
+        <h1 id="pageTitle">Edit Model</h1>
+        <a href="#" id="viewModelLink" class="btn btn-secondary">
+          ← Back to Model
+        </a>
+      </div>
+
+      <div class="form-card">
+        <form id="editForm" novalidate>
+          <div class="form-grid">
+            <!-- Hidden ID -->
+            <input type="hidden" id="modelId" />
+
+            <!-- Model Name -->
+            <div class="form-group full-width">
+              <label for="modelName">Model Name *</label>
+              <input type="text" id="modelName" required />
+            </div>
+
+            <!-- Manufacturer -->
+            <div class="form-group">
+              <label for="manufacturerId">Manufacturer *</label>
+              <select id="manufacturerId" required></select>
+            </div>
+
+            <!-- Vehicle Class -->
+            <div class="form-group">
+              <label for="classId">Vehicle Class</label>
+              <select id="classId">
+                <option value="">None</option>
+              </select>
+            </div>
+
+            <!-- Release Year -->
+            <div class="form-group">
+              <label for="releaseYear">Release Year</label>
+              <input type="number" id="releaseYear" min="2000" max="2030" />
+            </div>
+
+            <!-- Powertrain -->
+            <div class="form-group">
+              <label for="powertrainId">Powertrain</label>
+              <select id="powertrainId">
+                <option value="">None</option>
+              </select>
+            </div>
+
+            <!-- Battery Capacity -->
+            <div class="form-group">
+              <label for="batteryCapacity">Battery Capacity (kWh)</label>
+              <input type="number" id="batteryCapacity" step="0.01" />
+            </div>
+
+            <!-- CLTC Range -->
+            <div class="form-group">
+              <label for="cltcRange">CLTC Range (km)</label>
+              <input type="number" id="cltcRange" />
+            </div>
+
+            <!-- E-Power -->
+            <div class="form-group">
+              <label for="ePower">Motor Power (kW)</label>
+              <input type="number" id="ePower" />
+            </div>
+
+            <!-- E-Torque -->
+            <div class="form-group">
+              <label for="eTorque">Motor Torque (Nm)</label>
+              <input type="number" id="eTorque" />
+            </div>
+
+            <!-- Top Speed -->
+            <div class="form-group">
+              <label for="topSpeed">Top Speed (km/h)</label>
+              <input type="number" id="topSpeed" />
+            </div>
+
+            <!-- 0-100 km/h -->
+            <div class="form-group">
+              <label for="zeroToHundred">0–100 km/h (seconds)</label>
+              <input type="number" id="zeroToHundred" step="0.01" />
+            </div>
+
+            <!-- Drive Type -->
+            <div class="form-group">
+              <label for="driveTypeId">Drive Type</label>
+              <select id="driveTypeId">
+                <option value="">None</option>
+              </select>
+            </div>
+
+            <!-- Price -->
+            <div class="form-group">
+              <label for="price">Price ($)</label>
+              <input type="number" id="price" step="0.01" />
+            </div>
+
+            <!-- Cell Shape -->
+            <div class="form-group">
+              <label for="cellShape">Cell Shape</label>
+              <input type="text" id="cellShape" />
+            </div>
+
+            <!-- Cooling Method -->
+            <div class="form-group">
+              <label for="coolingMethod">Cooling Method</label>
+              <input type="text" id="coolingMethod" />
+            </div>
+
+            <!-- Cell Chemistry -->
+            <div class="form-group">
+              <label for="cellChemistry">Cell Chemistry</label>
+              <input type="text" id="cellChemistry" />
+            </div>
+
+            <!-- Fast Charging Time -->
+            <div class="form-group">
+              <label for="fastChargingTime">Fast Charging Time</label>
+              <input
+                type="text"
+                id="fastChargingTime"
+                placeholder="e.g. 0.5h"
+              />
+            </div>
+
+            <!-- AC Charging Time -->
+            <div class="form-group">
+              <label for="acChargingTime">AC Charging Time</label>
+              <input type="text" id="acChargingTime" placeholder="e.g. 5.5h" />
+            </div>
+
+            <!-- Warranty Years -->
+            <div class="form-group">
+              <label for="warrantyYears">Warranty (years)</label>
+              <input type="number" id="warrantyYears" />
+            </div>
+
+            <!-- Image URL -->
+            <div class="form-group full-width">
+              <label for="imgUrl">Image URL</label>
+              <input
+                type="url"
+                id="imgUrl"
+                placeholder="https://example.com/image.jpg"
+              />
+              <span class="hint">Paste a direct link to the vehicle image</span>
+            </div>
+          </div>
+
+          <div id="messageBox"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-success" id="saveBtn">
+              <span id="saveBtnText">💾 Save Changes</span>
+              <span
+                id="saveSpinner"
+                class="loading-spinner"
+                style="display: none"
+              ></span>
+            </button>
+            <a href="#" id="cancelBtn" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+
+        <!-- Delete Section -->
+        <div class="delete-section">
+          <h3>⚠️ Danger Zone</h3>
+          <p>
+            This action cannot be undone. This will permanently delete the model
+            from the database.
+          </p>
+          <button class="btn btn-danger" id="deleteBtn">🗑️ Delete Model</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // ---------- CONFIG ----------
+        // Change this to match your API location
+        var API_BASE = "../api/";
+
+        // ---------- HELPERS ----------
+        function getParam(name) {
+          return new URLSearchParams(window.location.search).get(name);
+        }
+
+        function showMessage(text, type) {
+          var box = document.getElementById("messageBox");
+          box.textContent = text;
+          box.className = "show " + type;
+          box.style.display = "block";
+        }
+
+        function hideMessage() {
+          var box = document.getElementById("messageBox");
+          box.className = "";
+          box.style.display = "none";
+        }
+
+        function setLoading(loading) {
+          var btn = document.getElementById("saveBtn");
+          var text = document.getElementById("saveBtnText");
+          var spin = document.getElementById("saveSpinner");
+          btn.disabled = loading;
+          text.textContent = loading ? "Saving..." : "💾 Save Changes";
+          spin.style.display = loading ? "inline-block" : "none";
+        }
+
+        // ---------- FETCH WITH ERROR HANDLING ----------
+        function fetchJson(url) {
+          return fetch(url)
+            .then(function (res) {
+              if (!res.ok)
+                throw new Error("HTTP " + res.status + " " + res.statusText);
+              return res.text();
+            })
+            .then(function (text) {
+              try {
+                return JSON.parse(text);
+              } catch (e) {
+                console.error("Invalid JSON from", url, text);
+                throw new Error("Server returned invalid JSON (check console)");
+              }
+            });
+        }
+
+        // ---------- LOAD DROPDOWNS ----------
+        function loadDropdowns() {
+          var endpoints = {
+            manufacturers: API_BASE + "read-all-man.php",
+            classes: API_BASE + "read-all-class.php",
+            powertrains: API_BASE + "read-all-powertrain.php",
+            drives: API_BASE + "read-all-drive.php",
+          };
+
+          return Promise.all([
+            fetchJson(endpoints.manufacturers).then(function (json) {
+              // Some endpoints may not have 'status'; treat missing status as success
+              if (json.status === false)
+                throw new Error(json.message || "Manufacturers load failed");
+              return json.data || [];
+            }),
+            fetchJson(endpoints.classes).then(function (json) {
+              if (json.status === false)
+                throw new Error(json.message || "Classes load failed");
+              return json.data || [];
+            }),
+            fetchJson(endpoints.powertrains).then(function (json) {
+              if (json.status === false)
+                throw new Error(json.message || "Powertrains load failed");
+              return json.data || [];
+            }),
+            fetchJson(endpoints.drives).then(function (json) {
+              if (json.status === false)
+                throw new Error(json.message || "Drives load failed");
+              return json.data || [];
+            }),
+          ]);
+        }
+
+        // ---------- POPULATE SELECTS ----------
+        function populateSelect(id, items, labelGetter, valueKey, defaultText) {
+          var sel = document.getElementById(id);
+          sel.innerHTML =
+            '<option value="">' + (defaultText || "None") + "</option>";
+          items.forEach(function (item) {
+            var opt = document.createElement("option");
+            opt.value = item[valueKey];
+            opt.textContent =
+              typeof labelGetter === "function"
+                ? labelGetter(item)
+                : item[labelGetter];
+            sel.appendChild(opt);
+          });
+        }
+
+        // ---------- LOAD MODEL ----------
+        function loadModel(id) {
+          return fetchJson(
+            API_BASE + "read-model.php?id=" + encodeURIComponent(id),
+          ).then(function (json) {
+            if (json.status === false || !json.post)
+              throw new Error(json.message || "Model not found");
+            return json.post;
+          });
+        }
+
+        // ---------- FILL FORM ----------
+        function fillForm(model) {
+          document.getElementById("modelId").value = model.id;
+          document.getElementById("modelName").value = model.model_name || "";
+          document.getElementById("manufacturerId").value =
+            model.manufacturer_id || "";
+          document.getElementById("classId").value = model.class_id || "";
+          document.getElementById("releaseYear").value =
+            model.release_year || "";
+          document.getElementById("powertrainId").value =
+            model.powertrain_id || "";
+          document.getElementById("batteryCapacity").value =
+            model.battery_capacity || "";
+          document.getElementById("cltcRange").value = model.cltc_range || "";
+          document.getElementById("ePower").value = model.e_power || "";
+          document.getElementById("eTorque").value = model.e_torque || "";
+          document.getElementById("topSpeed").value = model.top_speed || "";
+          document.getElementById("zeroToHundred").value =
+            model.zero_to_hundred || "";
+          document.getElementById("driveTypeId").value =
+            model.drive_type_id || "";
+          document.getElementById("price").value = model.price || "";
+          document.getElementById("cellShape").value = model.cell_shape || "";
+          document.getElementById("coolingMethod").value =
+            model.cooling_method || "";
+          document.getElementById("cellChemistry").value =
+            model.cell_chemistry || "";
+          document.getElementById("fastChargingTime").value =
+            model.fast_charging_time || "";
+          document.getElementById("acChargingTime").value =
+            model.ac_charging_time || "";
+          document.getElementById("warrantyYears").value =
+            model.warranty_years || "";
+          document.getElementById("imgUrl").value = model.img_url || "";
+
+          document.getElementById("pageTitle").textContent =
+            "Edit: " + model.model_name;
+          var link = document.getElementById("modelLink");
+          link.href = "model.html?id=" + model.id;
+          link.textContent = model.model_name;
+          document.getElementById("viewModelLink").href =
+            "model.html?id=" + model.id;
+          document.getElementById("cancelBtn").href =
+            "model.html?id=" + model.id;
+        }
+
+        // ---------- SAVE MODEL (PUT) ----------
+        function saveModel(data) {
+          setLoading(true);
+          hideMessage();
+
+          return fetch(API_BASE + "update-model.php", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          })
+            .then(function (res) {
+              if (!res.ok) throw new Error("HTTP " + res.status);
+              return res.text();
+            })
+            .then(function (text) {
+              try {
+                return JSON.parse(text);
+              } catch (e) {
+                console.error("PUT response not JSON:", text);
+                throw new Error(
+                  "Server returned invalid response (check console)",
+                );
+              }
+            })
+            .then(function (json) {
+              setLoading(false);
+              if (json.status === false) {
+                showMessage("❌ " + json.message, "error");
+                throw new Error(json.message);
+              }
+              showMessage("✅ " + json.message, "success");
+              // Reload the model to refresh the form with updated data
+              return loadModel(data.id).then(function (updated) {
+                fillForm(updated);
+                return json;
+              });
+            })
+            .catch(function (err) {
+              setLoading(false);
+              showMessage("❌ Error: " + err.message, "error");
+              throw err;
+            });
+        }
+
+        // ---------- DELETE ----------
+        function deleteModel(id) {
+          if (!confirm("⚠️ Delete this model permanently?")) return;
+          var btn = document.getElementById("deleteBtn");
+          btn.disabled = true;
+          btn.textContent = "Deleting...";
+
+          fetch(API_BASE + "delete-model.php?id=" + encodeURIComponent(id), {
+            method: "DELETE",
+          })
+            .then(function (res) {
+              return res.text();
+            })
+            .then(function (text) {
+              try {
+                return JSON.parse(text);
+              } catch (e) {
+                throw new Error("Invalid response");
+              }
+            })
+            .then(function (json) {
+              if (json.status === false) {
+                showMessage("❌ " + json.message, "error");
+                btn.disabled = false;
+                btn.textContent = "🗑️ Delete Model";
+                return;
+              }
+              showMessage("✅ Deleted!", "success");
+              setTimeout(function () {
+                window.location.href = "index.html";
+              }, 1500);
+            })
+            .catch(function (err) {
+              showMessage("❌ Delete error: " + err.message, "error");
+              btn.disabled = false;
+              btn.textContent = "🗑️ Delete Model";
+            });
+        }
+
+        // ---------- INIT ----------
+        function init() {
+          var id = getParam("id");
+          if (!id) {
+            document.querySelector(".form-card").innerHTML =
+              '<div style="padding:40px;text-align:center;color:var(--muted);">' +
+              'No model ID provided. <a href="index.html">← Back</a></div>';
+            return;
+          }
+
+          loadDropdowns()
+            .then(function (results) {
+              var manufacturers = results[0];
+              var classes = results[1];
+              var powertrains = results[2];
+              var drives = results[3];
+
+              populateSelect(
+                "manufacturerId",
+                manufacturers,
+                "name",
+                "id",
+                "Select Manufacturer",
+              );
+              populateSelect(
+                "classId",
+                classes,
+                function (item) {
+                  return (
+                    item.name +
+                    (item.category ? " (" + item.category + ")" : "")
+                  );
+                },
+                "id",
+                "None",
+              );
+              populateSelect(
+                "powertrainId",
+                powertrains,
+                function (item) {
+                  return (
+                    item.name +
+                    (item.description ? " (" + item.description + ")" : "")
+                  );
+                },
+                "id",
+                "None",
+              );
+              populateSelect(
+                "driveTypeId",
+                drives,
+                function (item) {
+                  return (
+                    item.name +
+                    (item.description ? " (" + item.description + ")" : "")
+                  );
+                },
+                "id",
+                "None",
+              );
+
+              return loadModel(id);
+            })
+            .then(function (model) {
+              fillForm(model);
+            })
+            .catch(function (err) {
+              document.querySelector(".form-card").innerHTML =
+                '<div style="padding:40px;text-align:center;color:var(--error);">' +
+                "❌ " +
+                err.message +
+                '<br><a href="index.html">← Back to All Models</a></div>';
+              console.error(err);
+            });
+        }
+
+        // ---------- EVENT BINDING ----------
+        document.addEventListener("DOMContentLoaded", function () {
+          init();
+
+          document
+            .getElementById("editForm")
+            .addEventListener("submit", function (e) {
+              e.preventDefault();
+              hideMessage();
+
+              var modelName = document.getElementById("modelName").value.trim();
+              var manId = document.getElementById("manufacturerId").value;
+              if (!modelName) {
+                showMessage("Model name is required.", "error");
+                return;
+              }
+              if (!manId) {
+                showMessage("Manufacturer is required.", "error");
+                return;
+              }
+
+              var data = {
+                id: parseInt(document.getElementById("modelId").value),
+                model_name: modelName,
+                manufacturer_id: parseInt(manId),
+                class_id: document.getElementById("classId").value
+                  ? parseInt(document.getElementById("classId").value)
+                  : null,
+                release_year: document.getElementById("releaseYear").value
+                  ? parseInt(document.getElementById("releaseYear").value)
+                  : null,
+                powertrain_id: document.getElementById("powertrainId").value
+                  ? parseInt(document.getElementById("powertrainId").value)
+                  : null,
+                battery_capacity: document.getElementById("batteryCapacity")
+                  .value
+                  ? parseFloat(document.getElementById("batteryCapacity").value)
+                  : null,
+                cltc_range: document.getElementById("cltcRange").value
+                  ? parseInt(document.getElementById("cltcRange").value)
+                  : null,
+                e_power: document.getElementById("ePower").value
+                  ? parseInt(document.getElementById("ePower").value)
+                  : null,
+                e_torque: document.getElementById("eTorque").value
+                  ? parseInt(document.getElementById("eTorque").value)
+                  : null,
+                top_speed: document.getElementById("topSpeed").value
+                  ? parseInt(document.getElementById("topSpeed").value)
+                  : null,
+                zero_to_hundred: document.getElementById("zeroToHundred").value
+                  ? parseFloat(document.getElementById("zeroToHundred").value)
+                  : null,
+                drive_type_id: document.getElementById("driveTypeId").value
+                  ? parseInt(document.getElementById("driveTypeId").value)
+                  : null,
+                price: document.getElementById("price").value
+                  ? parseFloat(document.getElementById("price").value)
+                  : null,
+                cell_shape: document.getElementById("cellShape").value || null,
+                cooling_method:
+                  document.getElementById("coolingMethod").value || null,
+                cell_chemistry:
+                  document.getElementById("cellChemistry").value || null,
+                fast_charging_time:
+                  document.getElementById("fastChargingTime").value || null,
+                ac_charging_time:
+                  document.getElementById("acChargingTime").value || null,
+                warranty_years: document.getElementById("warrantyYears").value
+                  ? parseInt(document.getElementById("warrantyYears").value)
+                  : null,
+                img_url: document.getElementById("imgUrl").value || null,
+              };
+
+              saveModel(data).catch(function () {
+                /* already handled */
+              });
+            });
+
+          document
+            .getElementById("deleteBtn")
+            .addEventListener("click", function () {
+              var id = document.getElementById("modelId").value;
+              if (id) deleteModel(id);
+            });
+        });
+      })();
+    </script>
+  </body>
+</html>

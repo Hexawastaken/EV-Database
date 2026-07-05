@@ -428,6 +428,29 @@
                 <div class="gauge-fill" id="rangeFill" style="width: 0%"></div>
               </div>
             </div>
+
+            <div
+              class="edit-button"
+              style="
+                display: flex;
+                flex-direction: row-reverse;
+                gap: 12px;
+                margin-top: 16px;
+              "
+            >
+              <a
+                style="
+                  background-color: #25a1f4;
+                  padding: 7px 7px 7px 7px;
+                  border-radius: 4px;
+                "
+                id="editLink"
+                href="#"
+                class="btn btn-primary"
+              >
+                Edit Model
+              </a>
+            </div>
           </div>
         </div>
 
@@ -745,6 +768,10 @@
           document.getElementById("crumbModel").textContent = m.model_name;
           setText("brandName", brandName);
           setText("modelName", m.model_name);
+
+          // Set the edit link
+          document.getElementById("editLink").href =
+            "edit-model.html?id=" + encodeURIComponent(m.id);
 
           // Render the thumbnail with image if available
           renderThumbnail(m.img_url, m.model_name);
