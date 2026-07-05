@@ -46,6 +46,7 @@ if($_SERVER['REQUEST_METHOD'] === "PUT"){
             "fast_charging_time" => $post["fast_charging_time"],
             "ac_charging_time" => $post["ac_charging_time"],
             "warranty_years" => $post["warranty_years"],
+            "img_url" => $post["img_url"]
     ];
     if($updatePost->update($data, $id)){
          echo json_encode([

@@ -110,60 +110,25 @@
       .login-btn:hover {
         background: #000;
       }
-      .settings-btn {
-        background: none;
+      .nav-btn-outline {
+        background: transparent;
         border: 1px solid var(--line);
-        color: var(--muted);
+        color: var(--text);
+        padding: 9px 18px;
         border-radius: 7px;
-        width: 34px;
-        height: 34px;
+        font-family: var(--body);
+        font-weight: 600;
+        font-size: 13px;
         cursor: pointer;
-        font-size: 14px;
+        transition: 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
       }
-      .settings-btn:hover {
+      .nav-btn-outline:hover {
         border-color: var(--accent);
         color: var(--accent);
-      }
-      .settings-pop {
-        position: absolute;
-        right: 0;
-        top: 44px;
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 12px;
-        display: none;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        z-index: 30;
-      }
-      .settings-pop.show {
-        display: block;
-      }
-      .settings-pop label {
-        font-size: 11px;
-        color: var(--muted);
-        display: block;
-        margin-bottom: 5px;
-      }
-      .settings-pop input {
-        font-family: var(--body);
-        font-size: 12px;
-        padding: 7px 9px;
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        width: 180px;
-        margin-bottom: 8px;
-      }
-      .settings-pop button {
-        width: 100%;
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        padding: 7px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
+        background: var(--accent-soft);
       }
 
       .shell {
@@ -376,7 +341,7 @@
       <div class="nav-brand">
         <div class="logo-slot">
           <img
-            src="logo.png"
+            src="./Pictures/Saipa-logo-BF808B7974-seeklogo.com.png"
             alt="Saipa"
             onerror="
               this.style.display = 'none';
@@ -387,16 +352,13 @@
         </div>
         <h1>EV Database</h1>
       </div>
+
       <div class="nav-right">
-        <button class="settings-btn" id="settingsBtn" title="API settings">
-          ⚙
-        </button>
+        <a href="search.html" class="nav-btn-outline">🔍 Search</a>
+        <a href="advance-search.html" class="nav-btn-outline"
+          >★ Advanced Search</a
+        >
         <button class="login-btn" id="loginBtn">Log in</button>
-        <div class="settings-pop" id="settingsPop">
-          <label>API base path</label>
-          <input id="apiBase" type="text" value="../api" />
-          <button id="saveApiBase">Save</button>
-        </div>
       </div>
     </nav>
 
@@ -525,10 +487,6 @@
               <span class="k">Warranty</span
               ><span class="v" id="s-warranty">—</span>
             </div>
-            <div class="fk-note">
-              Powertrain, class, and drive type are now looked up from their
-              respective tables.
-            </div>
           </div>
         </div>
       </div>
@@ -538,21 +496,6 @@
       (function () {
         var API_BASE = "../api/";
 
-        var settingsBtn = document.getElementById("settingsBtn");
-        var settingsPop = document.getElementById("settingsPop");
-        document
-          .getElementById("settingsBtn")
-          .addEventListener("click", function () {
-            settingsPop.classList.toggle("show");
-          });
-        document
-          .getElementById("saveApiBase")
-          .addEventListener("click", function () {
-            API_BASE = document.getElementById("apiBase").value.trim();
-            if (API_BASE && !API_BASE.endsWith("/")) API_BASE += "/";
-            settingsPop.classList.remove("show");
-            loadModel();
-          });
         document
           .getElementById("loginBtn")
           .addEventListener("click", function () {
@@ -755,8 +698,7 @@
             })
             .catch(function (err) {
               stateMsg.textContent =
-                "Could not reach the API. Check the ⚙ API settings. Error: " +
-                err.message;
+                "Could not reach the API. Error: " + err.message;
             });
         }
 

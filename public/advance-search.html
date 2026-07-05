@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search — EV Database</title>
+    <title>Advanced Search — EV Database</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -155,20 +155,17 @@
         letter-spacing: -0.01em;
       }
 
-      /* DROPDOWN ROW (all filters) */
-      .filter-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px 24px;
-        align-items: flex-end;
+      /* FILTER ROW (grid) */
+      .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px 20px;
+        align-items: end;
       }
       .filter-group {
         display: flex;
         flex-direction: column;
         gap: 4px;
-        min-width: 140px;
-        flex: 1 0 auto;
-        max-width: 220px;
       }
       .filter-group label {
         font-size: 12px;
@@ -177,7 +174,8 @@
         letter-spacing: 0.04em;
         color: var(--muted);
       }
-      .filter-group select {
+      .filter-group select,
+      .filter-group input {
         font-family: var(--body);
         font-size: 13px;
         padding: 8px 12px;
@@ -189,9 +187,25 @@
         transition: border-color 0.15s;
         width: 100%;
       }
-      .filter-group select:focus {
+      .filter-group select:focus,
+      .filter-group input:focus {
         border-color: var(--accent);
         box-shadow: 0 0 0 3px rgba(37, 71, 244, 0.1);
+      }
+
+      .filter-group .range-inputs {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .filter-group .range-inputs input {
+        width: 100%;
+        min-width: 0;
+      }
+      .filter-group .range-inputs span {
+        font-size: 12px;
+        color: var(--muted);
+        flex-shrink: 0;
       }
 
       /* FILTER ACTIONS */
@@ -264,16 +278,8 @@
         .grid {
           grid-template-columns: repeat(2, 1fr);
         }
-        .filter-row {
-          flex-direction: column;
-          align-items: stretch;
-        }
-        .filter-group {
-          max-width: 100%;
-          width: 100%;
-        }
-        .filter-group select {
-          width: 100%;
+        .filter-grid {
+          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         }
       }
       @media (max-width: 560px) {
@@ -288,6 +294,12 @@
         }
         .filter-section {
           padding: 16px;
+        }
+        .filter-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .filter-group.span-full {
+          grid-column: 1 / -1;
         }
       }
 
@@ -406,9 +418,7 @@
       </div>
       <div class="nav-right">
         <a href="index.html" class="nav-btn-outline">← Home</a>
-        <a href="advance-search.html" class="nav-btn-outline"
-          >★ Advanced Search</a
-        >
+        <a href="search.html" class="nav-btn-outline">🔍 Search</a>
         <button class="nav-btn" id="loginBtn">Log in</button>
       </div>
     </nav>
@@ -416,10 +426,10 @@
     <div class="shell">
       <!-- FILTERS -->
       <section class="filter-section">
-        <h2>🔍 Search Models</h2>
+        <h2>🔎 Advanced Search</h2>
 
-        <!-- ALL DROPDOWNS IN A ROW -->
-        <div class="filter-row">
+        <div class="filter-grid">
+          <!-- Powertrain -->
           <div class="filter-group">
             <label for="powertrainSelect">Powertrain</label>
             <select id="powertrainSelect">
@@ -427,6 +437,7 @@
             </select>
           </div>
 
+          <!-- Manufacturer -->
           <div class="filter-group">
             <label for="manufacturerSelect">Manufacturer</label>
             <select id="manufacturerSelect">
@@ -434,6 +445,7 @@
             </select>
           </div>
 
+          <!-- Region -->
           <div class="filter-group">
             <label for="regionSelect">Region</label>
             <select id="regionSelect">
@@ -441,16 +453,77 @@
             </select>
           </div>
 
+          <!-- Year -->
           <div class="filter-group">
             <label for="yearSelect">Release Year</label>
             <select id="yearSelect">
               <option value="">All</option>
             </select>
           </div>
+
+          <!-- Body Type (class) -->
+          <div class="filter-group">
+            <label for="classSelect">Body Type</label>
+            <select id="classSelect">
+              <option value="">All</option>
+            </select>
+          </div>
+
+          <!-- Drive Type -->
+          <div class="filter-group">
+            <label for="driveSelect">Drive Type</label>
+            <select id="driveSelect">
+              <option value="">All</option>
+            </select>
+          </div>
+
+          <!-- Price Range (min / max) -->
+          <div class="filter-group">
+            <label>Price ($)</label>
+            <div class="range-inputs">
+              <input
+                type="number"
+                id="priceMin"
+                placeholder="Min"
+                min="0"
+                step="100"
+              />
+              <span>–</span>
+              <input
+                type="number"
+                id="priceMax"
+                placeholder="Max"
+                min="0"
+                step="100"
+              />
+            </div>
+          </div>
+
+          <!-- Battery Capacity (min / max) -->
+          <div class="filter-group">
+            <label>Battery (kWh)</label>
+            <div class="range-inputs">
+              <input
+                type="number"
+                id="batteryMin"
+                placeholder="Min"
+                min="0"
+                step="0.5"
+              />
+              <span>–</span>
+              <input
+                type="number"
+                id="batteryMax"
+                placeholder="Max"
+                min="0"
+                step="0.5"
+              />
+            </div>
+          </div>
         </div>
 
         <div class="filter-actions">
-          <!-- <button class="btn btn-primary" id="searchBtn">Apply Filters</button> -->
+          <button class="btn btn-primary" id="searchBtn">Apply Filters</button>
           <button class="btn btn-secondary" id="clearBtn">Clear All</button>
         </div>
       </section>
@@ -471,9 +544,12 @@
         var allModels = [];
         var allManufacturers = [];
         var allPowertrains = [];
+        var allClasses = [];
+        var allDrives = [];
         var manMap = {};
         var manMapCountry = {};
-        var powertrainMap = {};
+        var classMap = {};
+        var driveMap = {};
 
         // ---- login button ----
         document
@@ -535,11 +611,33 @@
               .catch(function () {
                 return [];
               }),
+            fetch(API_BASE + "read-all-class.php")
+              .then(function (r) {
+                return r.json();
+              })
+              .then(function (json) {
+                return json.data || json.posts || [];
+              })
+              .catch(function () {
+                return [];
+              }),
+            fetch(API_BASE + "read-all-drive.php")
+              .then(function (r) {
+                return r.json();
+              })
+              .then(function (json) {
+                return json.data || json.posts || [];
+              })
+              .catch(function () {
+                return [];
+              }),
           ])
             .then(function (results) {
               allModels = results[0] || [];
               allManufacturers = results[1] || [];
               allPowertrains = results[2] || [];
+              allClasses = results[3] || [];
+              allDrives = results[4] || [];
 
               // Build maps
               manMap = {};
@@ -548,9 +646,13 @@
                 manMap[m.id] = m.name;
                 manMapCountry[m.id] = m.country || "";
               });
-              powertrainMap = {};
-              allPowertrains.forEach(function (p) {
-                powertrainMap[p.id] = p.name;
+              classMap = {};
+              allClasses.forEach(function (c) {
+                classMap[c.id] = c.name;
+              });
+              driveMap = {};
+              allDrives.forEach(function (d) {
+                driveMap[d.id] = d.name;
               });
 
               populateFilters();
@@ -565,7 +667,7 @@
 
         // ---- populate filters ----
         function populateFilters() {
-          // 1. Powertrain dropdown
+          // Powertrain
           var ptSelect = document.getElementById("powertrainSelect");
           var ptHtml = '<option value="">All</option>';
           allPowertrains.forEach(function (p) {
@@ -578,7 +680,7 @@
           });
           ptSelect.innerHTML = ptHtml;
 
-          // 2. Manufacturer dropdown
+          // Manufacturer
           var manSelect = document.getElementById("manufacturerSelect");
           var manHtml = '<option value="">All</option>';
           allManufacturers.forEach(function (m) {
@@ -591,7 +693,7 @@
           });
           manSelect.innerHTML = manHtml;
 
-          // 3. Region dropdown (distinct countries)
+          // Region
           var regions = {};
           allManufacturers.forEach(function (m) {
             if (m.country) regions[m.country] = true;
@@ -610,7 +712,7 @@
             });
           regionSelect.innerHTML = regHtml;
 
-          // 4. Year dropdown
+          // Year
           var years = {};
           allModels.forEach(function (m) {
             if (m.release_year) years[m.release_year] = true;
@@ -624,6 +726,32 @@
               yrHtml += '<option value="' + year + '">' + year + "</option>";
             });
           yearSelect.innerHTML = yrHtml;
+
+          // Body Type (class)
+          var classSelect = document.getElementById("classSelect");
+          var classHtml = '<option value="">All</option>';
+          allClasses.forEach(function (c) {
+            classHtml +=
+              '<option value="' +
+              c.id +
+              '">' +
+              escapeHtml(c.name) +
+              "</option>";
+          });
+          classSelect.innerHTML = classHtml;
+
+          // Drive Type
+          var driveSelect = document.getElementById("driveSelect");
+          var driveHtml = '<option value="">All</option>';
+          allDrives.forEach(function (d) {
+            driveHtml +=
+              '<option value="' +
+              d.id +
+              '">' +
+              escapeHtml(d.name) +
+              "</option>";
+          });
+          driveSelect.innerHTML = driveHtml;
         }
 
         // ---- apply filters ----
@@ -633,6 +761,16 @@
             document.getElementById("manufacturerSelect").value;
           var region = document.getElementById("regionSelect").value;
           var year = document.getElementById("yearSelect").value;
+          var classId = document.getElementById("classSelect").value;
+          var driveId = document.getElementById("driveSelect").value;
+          var priceMin = parseFloat(document.getElementById("priceMin").value);
+          var priceMax = parseFloat(document.getElementById("priceMax").value);
+          var batteryMin = parseFloat(
+            document.getElementById("batteryMin").value,
+          );
+          var batteryMax = parseFloat(
+            document.getElementById("batteryMax").value,
+          );
 
           var filtered = allModels.filter(function (m) {
             // Powertrain
@@ -647,13 +785,29 @@
               String(m.manufacturer_id) !== String(manufacturerId)
             )
               return false;
-            // Region – match manufacturer's country
+            // Region (via manufacturer country)
             if (region) {
               var manCountry = manMapCountry[m.manufacturer_id] || "";
               if (manCountry !== region) return false;
             }
             // Year
             if (year && String(m.release_year) !== String(year)) return false;
+            // Body type (class)
+            if (classId && String(m.class_id) !== String(classId)) return false;
+            // Drive type
+            if (driveId && String(m.drive_type_id) !== String(driveId))
+              return false;
+
+            // Price range
+            var price = Number(m.price);
+            if (!isNaN(priceMin) && price < priceMin) return false;
+            if (!isNaN(priceMax) && price > priceMax) return false;
+
+            // Battery capacity range
+            var battery = Number(m.battery_capacity);
+            if (!isNaN(batteryMin) && battery < batteryMin) return false;
+            if (!isNaN(batteryMax) && battery > batteryMax) return false;
+
             return true;
           });
 
@@ -749,9 +903,9 @@
         }
 
         // ---- event listeners ----
-        // document
-        //   .getElementById("searchBtn")
-        //   .addEventListener("click", applyFilters);
+        document
+          .getElementById("searchBtn")
+          .addEventListener("click", applyFilters);
         document
           .getElementById("clearBtn")
           .addEventListener("click", function () {
@@ -759,10 +913,16 @@
             document.getElementById("manufacturerSelect").value = "";
             document.getElementById("regionSelect").value = "";
             document.getElementById("yearSelect").value = "";
+            document.getElementById("classSelect").value = "";
+            document.getElementById("driveSelect").value = "";
+            document.getElementById("priceMin").value = "";
+            document.getElementById("priceMax").value = "";
+            document.getElementById("batteryMin").value = "";
+            document.getElementById("batteryMax").value = "";
             applyFilters();
           });
 
-        // Auto-apply on change
+        // Auto-apply on change (dropdown only)
         document
           .getElementById("powertrainSelect")
           .addEventListener("change", applyFilters);
@@ -775,6 +935,15 @@
         document
           .getElementById("yearSelect")
           .addEventListener("change", applyFilters);
+        document
+          .getElementById("classSelect")
+          .addEventListener("change", applyFilters);
+        document
+          .getElementById("driveSelect")
+          .addEventListener("change", applyFilters);
+
+        // For inputs (price, battery) we use the Apply button, but you can also add 'input' events if desired.
+        // We'll keep it manual to avoid excessive filtering while typing.
 
         // ---- init ----
         loadData();

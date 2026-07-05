@@ -690,7 +690,7 @@
         function saveModel(data) {
           setLoading(true);
           hideMessage();
-
+          // console.log(data);
           return fetch(API_BASE + "update-model.php", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -918,7 +918,6 @@
                   : null,
                 img_url: document.getElementById("imgUrl").value || null,
               };
-
               saveModel(data).catch(function () {
                 /* already handled */
               });

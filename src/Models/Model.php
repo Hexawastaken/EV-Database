@@ -24,11 +24,10 @@ class Model{
     }
 
     //Creating one model
-    public static function createPost($manufacturer_id, $model_name, $class_id, $release_year, $battery_capacity, $powertrain_id, $cltc_range, $e_power, $e_torque, $top_speed, $zero_to_hundred, $drive_type_id, $price, $cell_shape, $cooling_method, $cell_chemistry, $fast_charging_time, $ac_charging_time, $warranty_years ) {
+    public static function createPost($manufacturer_id, $model_name, $class_id, $release_year, $battery_capacity, $powertrain_id, $cltc_range, $e_power, $e_torque, $top_speed, $zero_to_hundred, $drive_type_id, $price, $cell_shape, $cooling_method, $cell_chemistry, $fast_charging_time, $ac_charging_time, $warranty_years, $img_url ) {
     try {
         $pdo = Database::connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        echo "HEREEE";
         $sql = "INSERT INTO models (manufacturer_id, model_name, class_id, release_year, battery_capacity, powertrain_id, cltc_range, e_power, e_torque, top_speed, zero_to_hundred, drive_type_id, price, cell_shape, cooling_method, cell_chemistry, fast_charging_time, ac_charging_time, warranty_years) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
         
@@ -44,13 +43,12 @@ class Model{
 }
 
     //Updating posts
-     public static function updatePost($manufacturer_id, $model_name, $class_id, $release_year, $battery_capacity, $powertrain_id, $cltc_range, $e_power, $e_torque, $top_speed, $zero_to_hundred, $drive_type_id, $price, $cell_shape, $cooling_method, $cell_chemistry, $fast_charging_time, $ac_charging_time, $warranty_years, $id){
+     public static function updatePost($manufacturer_id, $model_name, $class_id, $release_year, $battery_capacity, $powertrain_id, $cltc_range, $e_power, $e_torque, $top_speed, $zero_to_hundred, $drive_type_id, $price, $cell_shape, $cooling_method, $cell_chemistry, $fast_charging_time, $ac_charging_time, $warranty_years, $img_url, $id){
         try{
         $pdo = Database::connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $stmt = $pdo->prepare("UPDATE models SET manufacturer_id = ?, model_name = ?, class_id = ?, release_year = ?, battery_capacity = ?, powertrain_id = ?, cltc_range = ?, e_power = ?, e_torque = ?, top_speed = ?, zero_to_hundred = ?, drive_type_id = ?, price = ?, cell_shape = ?, cooling_method = ?, cell_chemistry = ?, fast_charging_time = ?, ac_charging_time = ?, warranty_years = ? WHERE id = ?");
-        $success = $stmt->execute([$manufacturer_id, $model_name, $class_id, $release_year, $battery_capacity, $powertrain_id, $cltc_range, $e_power, $e_torque, $top_speed, $zero_to_hundred, $drive_type_id, $price, $cell_shape, $cooling_method, $cell_chemistry, $fast_charging_time, $ac_charging_time, $warranty_years, $id]);
-        
+        $stmt = $pdo->prepare("UPDATE models SET manufacturer_id = ?, model_name = ?, class_id = ?, release_year = ?, battery_capacity = ?, powertrain_id = ?, cltc_range = ?, e_power = ?, e_torque = ?, top_speed = ?, zero_to_hundred = ?, drive_type_id = ?, price = ?, cell_shape = ?, cooling_method = ?, cell_chemistry = ?, fast_charging_time = ?, ac_charging_time = ?, warranty_years = ?, img_url = ? WHERE id = ?");
+        $success = $stmt->execute([$manufacturer_id, $model_name, $class_id, $release_year, $battery_capacity, $powertrain_id, $cltc_range, $e_power, $e_torque, $top_speed, $zero_to_hundred, $drive_type_id, $price, $cell_shape, $cooling_method, $cell_chemistry, $fast_charging_time, $ac_charging_time, $warranty_years, $img_url, $id]);
         // Check if any row was actually updated
         if ($success && $stmt->rowCount() > 0) {
             return true;

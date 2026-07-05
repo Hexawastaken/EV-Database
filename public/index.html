@@ -112,6 +112,27 @@
         background: #000;
       }
 
+      .nav-btn-outline {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text);
+        padding: 9px 18px;
+        border-radius: 7px;
+        font-family: var(--body);
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .nav-btn-outline:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+
       /* ---- SEARCH STRIP ---- */
       .search-strip {
         background: var(--bg);
@@ -180,9 +201,11 @@
         background: none;
       }
       .man-list {
-        max-height: 700px; /* was 560px — increase to your liking */
+        max-height: 700px;
         overflow-y: auto;
-        /* ... other styles ... */
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface);
       }
       .man-item {
         padding: 10px 14px;
@@ -398,26 +421,6 @@
         color: var(--muted);
         font-size: 14px;
       }
-      .nav-btn-outline {
-        background: transparent;
-        border: 1px solid var(--line);
-        color: var(--text);
-        padding: 9px 18px;
-        border-radius: 7px;
-        font-family: var(--body);
-        font-weight: 600;
-        font-size: 13px;
-        cursor: pointer;
-        transition: 0.15s;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .nav-btn-outline:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-        background: var(--accent-soft);
-      }
     </style>
   </head>
   <body>
@@ -436,12 +439,11 @@
         </div>
         <h1>EV Database</h1>
       </div>
+
       <div class="nav-right">
-        <a
-          href="search.html"
-          class="nav-btn-outline"
-          style="text-decoration: none"
-          >🔍 Search</a
+        <a href="search.html" class="nav-btn-outline">🔍 Search</a>
+        <a href="advance-search.html" class="nav-btn-outline"
+          >★ Advanced Search</a
         >
         <button class="login-btn" id="loginBtn">Log in</button>
       </div>
@@ -494,25 +496,7 @@
 
         <div class="filter-bar">
           <div class="filters">
-            <select id="fPrice">
-              <option value="">Price: Any</option>
-              <option value="0-30000">Under $30k</option>
-              <option value="30000-50000">$30k – $50k</option>
-              <option value="50000-80000">$50k – $80k</option>
-              <option value="80000-999999999">Over $80k</option>
-            </select>
-            <select id="fBattery">
-              <option value="">Battery: Any</option>
-              <option value="0-60">Under 60 kWh</option>
-              <option value="60-90">60 – 90 kWh</option>
-              <option value="90-9999">90 kWh+</option>
-            </select>
-            <select id="fPower">
-              <option value="">Motor power: Any</option>
-              <option value="0-150">Under 150 kW</option>
-              <option value="150-300">150 – 300 kW</option>
-              <option value="300-99999">300 kW+</option>
-            </select>
+            <!-- Only Sort dropdown remains -->
             <select id="fSort">
               <option value="newest">Sort: Newest</option>
               <option value="price-asc">Price: Low to high</option>
@@ -709,25 +693,15 @@
           });
 
         // ---- filters ----
-        ["fPrice", "fBattery", "fPower", "fSort"].forEach(function (id) {
-          document.getElementById(id).addEventListener("change", applyFilters);
-        });
+        // Only the Sort dropdown and global search need listeners
+        document
+          .getElementById("fSort")
+          .addEventListener("change", applyFilters);
         document
           .getElementById("globalSearch")
           .addEventListener("input", applyFilters);
 
-        function parseRange(val) {
-          if (!val) return null;
-          var parts = val.split("-");
-          return [parseFloat(parts[0]), parseFloat(parts[1])];
-        }
-
         function applyFilters() {
-          var priceRange = parseRange(document.getElementById("fPrice").value);
-          var batteryRange = parseRange(
-            document.getElementById("fBattery").value,
-          );
-          var powerRange = parseRange(document.getElementById("fPower").value);
           var sort = document.getElementById("fSort").value;
           var q = document
             .getElementById("globalSearch")
@@ -735,49 +709,31 @@
             .toLowerCase();
 
           var filtered = models.filter(function (m) {
+            // Manufacturer filter (from sidebar)
             if (
               activeManufacturerId &&
               String(m.manufacturer_id) !== String(activeManufacturerId)
             )
               return false;
-            if (
-              priceRange &&
-              !(
-                Number(m.price) >= priceRange[0] &&
-                Number(m.price) <= priceRange[1]
-              )
-            )
-              return false;
-            if (
-              batteryRange &&
-              !(
-                Number(m.battery_capacity) >= batteryRange[0] &&
-                Number(m.battery_capacity) <= batteryRange[1]
-              )
-            )
-              return false;
-            if (
-              powerRange &&
-              !(
-                Number(m.e_power) >= powerRange[0] &&
-                Number(m.e_power) <= powerRange[1]
-              )
-            )
-              return false;
+
+            // Global search (brand or model name)
             if (q) {
               var brand = (manMap[m.manufacturer_id] || "").toLowerCase();
               var name = (m.model_name || "").toLowerCase();
               if (brand.indexOf(q) === -1 && name.indexOf(q) === -1)
                 return false;
             }
+
             return true;
           });
 
+          // Sort the filtered results
           filtered.sort(function (a, b) {
             if (sort === "price-asc") return Number(a.price) - Number(b.price);
             if (sort === "price-desc") return Number(b.price) - Number(a.price);
             if (sort === "range-desc")
               return Number(b.cltc_range) - Number(a.cltc_range);
+            // default: newest
             return Number(b.release_year) - Number(a.release_year);
           });
 
