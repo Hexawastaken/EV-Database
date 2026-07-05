@@ -398,6 +398,26 @@
         color: var(--muted);
         font-size: 14px;
       }
+      .nav-btn-outline {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text);
+        padding: 9px 18px;
+        border-radius: 7px;
+        font-family: var(--body);
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .nav-btn-outline:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
     </style>
   </head>
   <body>
@@ -417,6 +437,12 @@
         <h1>EV Database</h1>
       </div>
       <div class="nav-right">
+        <a
+          href="search.html"
+          class="nav-btn-outline"
+          style="text-decoration: none"
+          >🔍 Search</a
+        >
         <button class="login-btn" id="loginBtn">Log in</button>
       </div>
     </nav>
