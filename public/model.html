@@ -12,13 +12,13 @@
     />
     <style>
       :root {
-        --bg: #f6f6f3;
+        --bg: #faf1ea;
         --surface: #ffffff;
-        --line: #e6e5e0;
+        --line: #e5dbd4;
         --text: #16181c;
         --muted: #767a7f;
-        --accent: #2547f4;
-        --accent-soft: #eaedfe;
+        --accent: #f57400;
+        --accent-soft: #fef3e6;
         --gauge-track: #eceef4;
         --display: "Space Grotesk", sans-serif;
         --body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -42,11 +42,18 @@
         grid-template-columns: 1fr auto 1fr;
         align-items: center;
         padding: 14px 32px;
-        background: var(--surface);
-        border-bottom: 1px solid var(--line);
+        background: var(--accent-soft);
+        border-bottom: 2px solid var(--accent);
         position: sticky;
         top: 0;
         z-index: 20;
+      }
+      .nav-left {
+        grid-column: 1;
+        justify-self: start;
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
       .nav-brand {
         grid-column: 2;
@@ -56,15 +63,15 @@
         justify-self: center;
       }
       .logo-slot {
-        width: 34px;
-        height: 34px;
+        width: 43px;
+        height: 43px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
       .logo-slot img {
-        width: 100%;
-        height: 100%;
+        width: 200%;
+        height: 200%;
         object-fit: contain;
       }
       .logo-fallback {
@@ -97,7 +104,7 @@
         position: relative;
       }
       .login-btn {
-        background: var(--text);
+        background: var(--accent);
         color: #fff;
         border: none;
         border-radius: 7px;
@@ -106,9 +113,10 @@
         font-weight: 600;
         font-size: 13px;
         cursor: pointer;
+        transition: background 0.15s;
       }
       .login-btn:hover {
-        background: #000;
+        background: #d96a00;
       }
       .nav-btn-outline {
         background: transparent;
@@ -129,6 +137,135 @@
         border-color: var(--accent);
         color: var(--accent);
         background: var(--accent-soft);
+      }
+
+      /* ---- Modal Overlay ---- */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal-box {
+        background: var(--surface);
+        border-radius: 20px;
+        padding: 2.5rem 2.8rem;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        animation: modalFade 0.25s ease;
+      }
+      @keyframes modalFade {
+        0% {
+          opacity: 0;
+          transform: scale(0.96) translateY(12px);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+      .modal-box h2 {
+        font-family: var(--display);
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .modal-box .sub {
+        color: var(--muted);
+        font-size: 14px;
+        margin-bottom: 1.5rem;
+        border-left: 3px solid var(--accent);
+        padding-left: 12px;
+      }
+      .modal-box .input-group {
+        margin-bottom: 1rem;
+      }
+      .modal-box .input-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .modal-box .input-group input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font-size: 14px;
+        background: var(--bg);
+        transition: border-color 0.15s;
+      }
+      .modal-box .input-group input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(245, 116, 0, 0.2);
+      }
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 1.2rem;
+        flex-wrap: wrap;
+      }
+      .modal-actions .btn {
+        flex: 1;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.15s;
+        font-size: 14px;
+      }
+      .modal-actions .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .modal-actions .btn-primary:hover {
+        background: #d96a00;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(245, 116, 0, 0.3);
+      }
+      .modal-actions .btn-secondary {
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+      .modal-actions .btn-secondary:hover {
+        background: var(--line);
+      }
+      .modal-message {
+        margin-top: 12px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        display: none;
+      }
+      .modal-message.error {
+        display: block;
+        background: #fde8ea;
+        color: #b13e4b;
+        border: 1px solid #f5c8cc;
+      }
+      .modal-message.success {
+        display: block;
+        background: #e6f4ef;
+        color: #1a6e5c;
+        border: 1px solid #b8dfd2;
       }
 
       .shell {
@@ -338,10 +475,12 @@
   </head>
   <body>
     <nav>
+      <div class="nav-left" id="navLeft"></div>
+
       <div class="nav-brand">
-        <div class="logo-slot">
+        <a href="index.html" class="logo-slot">
           <img
-            src="./Pictures/Saipa-logo-BF808B7974-seeklogo.com.png"
+            src="./Pictures/Saipa-logo.png"
             alt="Saipa"
             onerror="
               this.style.display = 'none';
@@ -349,7 +488,7 @@
             "
           />
           <div class="logo-fallback" style="display: none">SAIPA</div>
-        </div>
+        </a>
         <h1>EV Database</h1>
       </div>
 
@@ -359,6 +498,13 @@
           >★ Advanced Search</a
         >
         <button class="login-btn" id="loginBtn">Log in</button>
+        <button
+          class="login-btn"
+          id="logoutBtn"
+          style="display: none; background: #b13e4b"
+        >
+          Log out
+        </button>
       </div>
     </nav>
 
@@ -391,27 +537,31 @@
               </div>
             </div>
 
-            <div
-              class="edit-button"
-              style="
-                display: flex;
-                flex-direction: row-reverse;
-                gap: 12px;
-                margin-top: 16px;
-              "
-            >
-              <a
+            <div id="editContainer" style="display: none">
+              <div
+                class="edit-button"
                 style="
-                  background-color: #25a1f4;
-                  padding: 7px 7px 7px 7px;
-                  border-radius: 4px;
+                  display: flex;
+                  flex-direction: row-reverse;
+                  gap: 12px;
+                  margin-top: 16px;
                 "
-                id="editLink"
-                href="#"
-                class="btn btn-primary"
               >
-                Edit Model
-              </a>
+                <a
+                  id="editLink"
+                  href="#"
+                  class="btn btn-primary"
+                  style="
+                    background-color: var(--accent);
+                    padding: 7px 14px;
+                    border-radius: 4px;
+                    color: #fff;
+                    text-decoration: none;
+                  "
+                >
+                  ✏️ Edit Model
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -492,18 +642,153 @@
       </div>
     </div>
 
+    <!-- ===== LOGIN MODAL ===== -->
+    <div class="modal-overlay" id="loginModal">
+      <div class="modal-box">
+        <h2>🔐 Log in</h2>
+        <div class="sub">Enter your credentials</div>
+        <div class="input-group">
+          <label for="modalUsername">Username</label>
+          <input type="text" id="modalUsername" placeholder="admin" />
+        </div>
+        <div class="input-group">
+          <label for="modalPassword">Password</label>
+          <input type="password" id="modalPassword" placeholder="••••••••" />
+        </div>
+        <div id="modalMessage" class="modal-message"></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="modalLoginBtn">Log in</button>
+          <button class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       (function () {
         var API_BASE = "../api/";
 
-        document
-          .getElementById("loginBtn")
-          .addEventListener("click", function () {
-            alert(
-              "Admin login goes here — drop your login code in for #loginBtn.",
-            );
-          });
+        // ---- DOM refs for login modal ----
+        var loginModal = document.getElementById("loginModal");
+        var modalUsername = document.getElementById("modalUsername");
+        var modalPassword = document.getElementById("modalPassword");
+        var modalLoginBtn = document.getElementById("modalLoginBtn");
+        var modalCancelBtn = document.getElementById("modalCancelBtn");
+        var modalMessage = document.getElementById("modalMessage");
+        var loginBtn = document.getElementById("loginBtn");
+        var logoutBtn = document.getElementById("logoutBtn");
+        var navLeft = document.getElementById("navLeft");
 
+        // ---- Login / Logout functions ----
+        function showLoginModal() {
+          modalUsername.value = "";
+          modalPassword.value = "";
+          modalMessage.className = "modal-message";
+          modalMessage.textContent = "";
+          loginModal.classList.add("active");
+          modalUsername.focus();
+        }
+
+        function hideLoginModal() {
+          loginModal.classList.remove("active");
+        }
+
+        function attemptLogin() {
+          var username = modalUsername.value.trim();
+          var password = modalPassword.value.trim();
+          if (!username || !password) {
+            modalMessage.className = "modal-message error";
+            modalMessage.textContent = "Please fill in both fields.";
+            return;
+          }
+
+          fetch(API_BASE + "login.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: username, password: password }),
+            credentials: "include",
+          })
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.status) {
+                modalMessage.className = "modal-message success";
+                modalMessage.textContent = "✅ Login successful!";
+                setTimeout(function () {
+                  hideLoginModal();
+                  updateUI();
+                }, 800);
+              } else {
+                modalMessage.className = "modal-message error";
+                modalMessage.textContent = "❌ " + data.message;
+              }
+            })
+            .catch(function (err) {
+              modalMessage.className = "modal-message error";
+              modalMessage.textContent = "⚠️ Server error. Please try again.";
+              console.error(err);
+            });
+        }
+
+        function logout() {
+          fetch(API_BASE + "logout.php", { credentials: "include" })
+            .then((r) => r.json())
+            .then(function () {
+              updateUI();
+            });
+        }
+
+        function updateUI() {
+          fetch(API_BASE + "check-session.php", { credentials: "include" })
+            .then((r) => r.json())
+            .then((data) => {
+              var editContainer = document.getElementById("editContainer");
+              if (data.loggedIn) {
+                loginBtn.style.display = "none";
+                logoutBtn.style.display = "inline-block";
+                if (editContainer) editContainer.style.display = "block";
+                navLeft.innerHTML =
+                  '<a href="admin.html" class="nav-btn-outline">⚙️ Admin Dashboard</a>';
+              } else {
+                loginBtn.style.display = "inline-block";
+                logoutBtn.style.display = "none";
+                if (editContainer) editContainer.style.display = "none";
+                navLeft.innerHTML = "";
+              }
+            })
+            .catch(function () {
+              loginBtn.style.display = "inline-block";
+              logoutBtn.style.display = "none";
+              var editContainer = document.getElementById("editContainer");
+              if (editContainer) editContainer.style.display = "none";
+              navLeft.innerHTML = "";
+            });
+        }
+
+        // ---- Event listeners ----
+        loginBtn.addEventListener("click", showLoginModal);
+        logoutBtn.addEventListener("click", logout);
+        modalCancelBtn.addEventListener("click", hideLoginModal);
+        modalLoginBtn.addEventListener("click", attemptLogin);
+
+        // Close modal on backdrop click
+        loginModal.addEventListener("click", function (e) {
+          if (e.target === loginModal) hideLoginModal();
+        });
+
+        // Enter key in modal
+        modalUsername.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            modalPassword.focus();
+          }
+        });
+        modalPassword.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            attemptLogin();
+          }
+        });
+
+        // ---- Existing model loading code ----
         // SVG placeholder for when no image is available
         var CAR_SVG =
           '<svg class="placeholder-svg" viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg">' +
@@ -530,6 +815,7 @@
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;");
         }
+
         function setText(id, val) {
           document.getElementById(id).textContent = val;
         }
@@ -550,7 +836,9 @@
             return Promise.resolve(lookupCache[cacheKey][id]);
           }
 
-          return fetch(API_BASE + endpoint + "?id=" + encodeURIComponent(id))
+          return fetch(API_BASE + endpoint + "?id=" + encodeURIComponent(id), {
+            credentials: "include",
+          })
             .then(function (r) {
               if (!r.ok) throw new Error("Network error");
               return r.json();
@@ -664,7 +952,9 @@
           stateMsg.style.display = "block";
           stateMsg.textContent = "Loading model…";
 
-          fetch(API_BASE + "read-model.php?id=" + encodeURIComponent(id))
+          fetch(API_BASE + "read-model.php?id=" + encodeURIComponent(id), {
+            credentials: "include",
+          })
             .then(function (r) {
               return r.json();
             })
@@ -680,6 +970,7 @@
                 API_BASE +
                   "read-man.php?id=" +
                   encodeURIComponent(m.manufacturer_id),
+                { credentials: "include" },
               )
                 .then(function (r) {
                   return r.json();
@@ -793,8 +1084,13 @@
           setText("s-warranty", m.warranty_years + " yr");
 
           document.title = m.model_name + " — EV Database";
+
+          // Update UI (login state) to show/hide edit button
+          updateUI();
         }
 
+        // ---- Initial UI update and model load ----
+        updateUI();
         loadModel();
       })();
     </script>

@@ -1,630 +1,977 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EV Database Admin</title>
-<style>
-  :root{
-    --bg: #0b1210;
-    --panel: #101b18;
-    --panel-2: #142420;
-    --line: #223531;
-    --text: #e7f3ee;
-    --muted: #8fa79d;
-    --accent: #35e0a1;
-    --accent-dim: #1c7a58;
-    --danger: #e0665f;
-    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    min-height:100vh;
-  }
-  .topbar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:18px 28px;
-    border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg, #0e1815, #0b1210);
-  }
-  .brand{display:flex; align-items:center; gap:10px;}
-  .brand .bolt{
-    width:26px;height:26px;border-radius:6px;
-    background:var(--accent); color:#04241a;
-    display:flex;align-items:center;justify-content:center;
-    font-weight:700; font-size:15px;
-  }
-  .brand h1{font-size:16px; margin:0; letter-spacing:0.02em;}
-  .brand span{color:var(--muted); font-size:12px; display:block; margin-top:2px;}
-  .apibox{display:flex; align-items:center; gap:8px;}
-  .apibox label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;}
-  .apibox input{
-    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
-    border-radius:6px; padding:6px 10px; font-family:var(--mono); font-size:12px;
-    width:220px;
-  }
-  .apibox button{
-    background:transparent; border:1px solid var(--line); color:var(--muted);
-    border-radius:6px; padding:6px 10px; font-size:12px; cursor:pointer;
-  }
-  .apibox button:hover{border-color:var(--accent); color:var(--accent);}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EV Database Admin</title>
+    <style>
+      :root {
+        --bg: #faf1ea;
+        --panel: #ffffff;
+        --panel-2: #fef3e6;
+        --line: #e5dbd4;
+        --text: #16181c;
+        --muted: #767a7f;
+        --accent: #f57400;
+        --accent-soft: #fef3e6;
+        --accent-dim: #d96a00;
+        --danger: #e0665f;
+        --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        --display: "Space Grotesk", sans-serif;
+        --body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--body);
+        min-height: 100vh;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
 
-  .tabs{
-    display:flex; gap:4px; padding:0 28px; border-bottom:1px solid var(--line);
-    background:var(--bg);
-  }
-  .tab{
-    padding:12px 16px; font-size:13px; color:var(--muted); cursor:pointer;
-    border-bottom:2px solid transparent; user-select:none;
-  }
-  .tab.active{color:var(--accent); border-bottom-color:var(--accent);}
-  .tab:hover{color:var(--text);}
+      /* ---- NAVBAR (matches other pages) ---- */
+      nav {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 14px 32px;
+        background: var(--accent-soft);
+        border-bottom: 2px solid var(--accent);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+      }
+      .nav-left {
+        grid-column: 1;
+        justify-self: start;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-brand {
+        grid-column: 2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-self: center;
+      }
+      .logo-slot {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo-slot img {
+        width: 200%;
+        height: 200%;
+        object-fit: contain;
+      }
+      .logo-fallback {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--text);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 10px;
+        letter-spacing: 0.02em;
+      }
+      .nav-brand h1 {
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .nav-right {
+        grid-column: 3;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-btn-outline {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text);
+        padding: 9px 18px;
+        border-radius: 7px;
+        font-family: var(--body);
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .nav-btn-outline:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
 
-  main{padding:24px 28px; max-width:1100px; margin:0 auto;}
-  .view{display:none;}
-  .view.active{display:block;}
+      /* ---- tabs ---- */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 0 28px;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
+      }
+      .tab {
+        padding: 12px 16px;
+        font-size: 13px;
+        color: var(--muted);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        user-select: none;
+      }
+      .tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+      .tab:hover {
+        color: var(--text);
+      }
 
-  .panel{
-    background:var(--panel); border:1px solid var(--line); border-radius:10px;
-    padding:18px; margin-bottom:20px;
-  }
-  .panel h2{font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); margin:0 0 14px;}
+      main {
+        padding: 24px 28px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+      }
 
-  .row{display:flex; gap:10px; flex-wrap:wrap;}
-  .field{display:flex; flex-direction:column; gap:5px; flex:1; min-width:160px;}
-  .field label{font-size:11px; color:var(--muted);}
-  .field input, .field select{
-    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
-    border-radius:6px; padding:8px 10px; font-size:13px;
-  }
-  .field input:focus, .field select:focus{outline:none; border-color:var(--accent);}
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 20px;
+      }
+      .panel h2 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 14px;
+      }
 
-  .btn{
-    background:var(--accent); color:#04241a; border:none; border-radius:6px;
-    padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer;
-    align-self:flex-end;
-  }
-  .btn:hover{background:#4beeb4;}
-  .btn.secondary{
-    background:transparent; border:1px solid var(--line); color:var(--text); font-weight:400;
-  }
-  .btn.secondary:hover{border-color:var(--accent); color:var(--accent);}
-  .btn.danger-outline{
-    background:transparent; border:1px solid var(--danger); color:var(--danger); font-weight:400;
-  }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        flex: 1;
+        min-width: 160px;
+      }
+      .field label {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .field input,
+      .field select {
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        color: var(--text);
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+      .field input:focus,
+      .field select:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
 
-  table{width:100%; border-collapse:collapse; font-size:13px;}
-  th{
-    text-align:left; color:var(--muted); font-weight:500; font-size:11px;
-    text-transform:uppercase; letter-spacing:0.05em;
-    padding:8px 10px; border-bottom:1px solid var(--line);
-  }
-  td{padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:middle;}
-  tr:hover td{background:var(--panel-2);}
-  td.num{font-family:var(--mono); color:var(--accent);}
-  td.actions{text-align:right; white-space:nowrap;}
-  .link-btn{
-    background:none; border:none; color:var(--muted); font-size:12px; cursor:pointer;
-    padding:4px 8px; border-radius:4px;
-  }
-  .link-btn:hover{color:var(--accent); background:var(--panel-2);}
+      .btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        align-self: flex-end;
+      }
+      .btn:hover {
+        background: var(--accent-dim);
+      }
+      .btn.secondary {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text);
+        font-weight: 400;
+      }
+      .btn.secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn.danger-outline {
+        background: transparent;
+        border: 1px solid var(--danger);
+        color: var(--danger);
+        font-weight: 400;
+      }
 
-  .status{font-size:12px; padding:8px 10px; border-radius:6px; margin-bottom:14px; display:none;}
-  .status.show{display:block;}
-  .status.ok{background:rgba(53,224,161,0.1); color:var(--accent); border:1px solid var(--accent-dim);}
-  .status.err{background:rgba(224,102,95,0.1); color:var(--danger); border:1px solid var(--danger);}
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th {
+        text-align: left;
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--line);
+      }
+      td {
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+      }
+      tr:hover td {
+        background: var(--panel-2);
+      }
+      td.num {
+        font-family: var(--mono);
+        color: var(--accent);
+      }
+      td.actions {
+        text-align: right;
+        white-space: nowrap;
+      }
+      .link-btn {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 12px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      .link-btn:hover {
+        color: var(--accent);
+        background: var(--panel-2);
+      }
 
-  .empty{color:var(--muted); font-size:13px; padding:20px 0; text-align:center;}
-  .notice{
-    background:var(--panel-2); border:1px dashed var(--line); border-radius:8px;
-    padding:12px 14px; font-size:12px; color:var(--muted); margin-bottom:16px;
-  }
-  .notice b{color:var(--text);}
+      .status {
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        margin-bottom: 14px;
+        display: none;
+      }
+      .status.show {
+        display: block;
+      }
+      .status.ok {
+        background: rgba(245, 116, 0, 0.1);
+        color: var(--accent);
+        border: 1px solid var(--accent);
+      }
+      .status.err {
+        background: rgba(224, 102, 95, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+      }
 
-  ::-webkit-scrollbar{height:8px; width:8px;}
-  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
-</style>
-</head>
-<body>
+      .empty {
+        color: var(--muted);
+        font-size: 13px;
+        padding: 20px 0;
+        text-align: center;
+      }
+      .notice {
+        background: var(--panel-2);
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+      .notice b {
+        color: var(--text);
+      }
 
-<div class="topbar">
-  <div class="brand">
-    <div class="bolt">⚡</div>
-    <div>
-      <h1>EV Database Admin</h1>
-      <span>manufacturers &amp; models</span>
+      ::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--line);
+        border-radius: 4px;
+      }
+
+      /* ---- responsive tweaks ---- */
+      @media (max-width: 768px) {
+        nav {
+          padding: 12px 16px;
+          grid-template-columns: 1fr auto 1fr;
+        }
+        .nav-brand h1 {
+          font-size: 15px;
+        }
+        .logo-slot {
+          width: 34px;
+          height: 34px;
+        }
+        .tabs {
+          padding: 0 16px;
+        }
+        main {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-left"></div>
+
+      <div class="nav-brand">
+        <a href="index.html" class="logo-slot">
+          <img
+            src="./Pictures/Saipa-logo.png"
+            alt="Saipa"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.style.display = 'flex';
+            "
+          />
+          <div class="logo-fallback" style="display: none">SAIPA</div>
+        </a>
+        <h1>EV Database Admin</h1>
+      </div>
+
+      <div class="nav-right">
+        <a href="index.html" class="nav-btn-outline">← Home</a>
+      </div>
+    </nav>
+
+    <div class="tabs">
+      <div class="tab active" data-view="manufacturers">Manufacturers</div>
+      <div class="tab" data-view="models">Models</div>
     </div>
-  </div>
-  <div class="apibox">
-    <label>API base</label>
-    <input id="apiBase" type="text" value="../" spellcheck="false">
-    <button id="saveApiBase">Save</button>
-  </div>
-</div>
 
-<div class="tabs">
-  <div class="tab active" data-view="manufacturers">Manufacturers</div>
-  <div class="tab" data-view="models">Models</div>
-</div>
+    <main>
+      <div id="status" class="status"></div>
 
-<main>
-
-  <div id="status" class="status"></div>
-
-  <!-- MANUFACTURERS -->
-  <div class="view active" id="view-manufacturers">
-
-    <div class="panel">
-      <h2 id="manFormTitle">Add manufacturer</h2>
-      <div class="row">
-        <div class="field">
-          <label>Name</label>
-          <input id="manName" type="text" placeholder="BYD">
+      <!-- MANUFACTURERS -->
+      <div class="view active" id="view-manufacturers">
+        <div class="panel">
+          <h2 id="manFormTitle">Add manufacturer</h2>
+          <div class="row">
+            <div class="field">
+              <label>Name</label>
+              <input id="manName" type="text" placeholder="BYD" />
+            </div>
+            <div class="field">
+              <label>Country</label>
+              <input id="manCountry" type="text" placeholder="China" />
+            </div>
+            <button class="btn" id="manSubmit">Add manufacturer</button>
+            <button class="btn secondary" id="manCancel" style="display: none">
+              Cancel edit
+            </button>
+          </div>
         </div>
-        <div class="field">
-          <label>Country</label>
-          <input id="manCountry" type="text" placeholder="China">
-        </div>
-        <button class="btn" id="manSubmit">Add manufacturer</button>
-        <button class="btn secondary" id="manCancel" style="display:none;">Cancel edit</button>
-      </div>
-    </div>
 
-    <div class="panel">
-      <h2>All manufacturers</h2>
-      <div id="manTableWrap"><div class="empty">Loading…</div></div>
-    </div>
-  </div>
-
-  <!-- MODELS -->
-  <div class="view" id="view-models">
-
-    <div class="panel">
-      <h2 id="modelFormTitle">Add model</h2>
-
-      <div class="row">
-        <div class="field">
-          <label>Manufacturer</label>
-          <select id="mdManufacturer"><option value="">Loading…</option></select>
-        </div>
-        <div class="field">
-          <label>Model name</label>
-          <input id="mdModelName" type="text" placeholder="Seal">
-        </div>
-        <div class="field">
-          <label>Class ID</label>
-          <input id="mdClassId" type="number" placeholder="1">
-        </div>
-        <div class="field">
-          <label>Release year</label>
-          <input id="mdReleaseYear" type="number" placeholder="2026">
+        <div class="panel">
+          <h2>All manufacturers</h2>
+          <div id="manTableWrap"><div class="empty">Loading…</div></div>
         </div>
       </div>
 
-      <div class="row" style="margin-top:10px;">
-        <div class="field">
-          <label>Battery capacity (kWh)</label>
-          <input id="mdBatteryCapacity" type="number" step="0.1" placeholder="82.5">
+      <!-- MODELS -->
+      <div class="view" id="view-models">
+        <div class="panel">
+          <h2 id="modelFormTitle">Add model</h2>
+
+          <div class="row">
+            <div class="field">
+              <label>Manufacturer</label>
+              <select id="mdManufacturer">
+                <option value="">Loading…</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Model name</label>
+              <input id="mdModelName" type="text" placeholder="Seal" />
+            </div>
+            <div class="field">
+              <label>Class ID</label>
+              <input id="mdClassId" type="number" placeholder="1" />
+            </div>
+            <div class="field">
+              <label>Release year</label>
+              <input id="mdReleaseYear" type="number" placeholder="2026" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <div class="field">
+              <label>Battery capacity (kWh)</label>
+              <input
+                id="mdBatteryCapacity"
+                type="number"
+                step="0.1"
+                placeholder="82.5"
+              />
+            </div>
+            <div class="field">
+              <label>Powertrain ID</label>
+              <input id="mdPowertrainId" type="number" placeholder="1" />
+            </div>
+            <div class="field">
+              <label>CLTC range (km)</label>
+              <input id="mdCltcRange" type="number" placeholder="650" />
+            </div>
+            <div class="field">
+              <label>Drive type ID</label>
+              <input id="mdDriveTypeId" type="number" placeholder="1" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <div class="field">
+              <label>Power (kW)</label>
+              <input id="mdEPower" type="number" placeholder="230" />
+            </div>
+            <div class="field">
+              <label>Torque (Nm)</label>
+              <input id="mdETorque" type="number" placeholder="360" />
+            </div>
+            <div class="field">
+              <label>Top speed (km/h)</label>
+              <input id="mdTopSpeed" type="number" placeholder="180" />
+            </div>
+            <div class="field">
+              <label>0-100 (s)</label>
+              <input
+                id="mdZeroToHundred"
+                type="number"
+                step="0.1"
+                placeholder="5.9"
+              />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <div class="field">
+              <label>Price</label>
+              <input
+                id="mdPrice"
+                type="number"
+                step="0.01"
+                placeholder="45000"
+              />
+            </div>
+            <div class="field">
+              <label>Cell shape</label>
+              <input id="mdCellShape" type="text" placeholder="Prismatic" />
+            </div>
+            <div class="field">
+              <label>Cooling method</label>
+              <input id="mdCoolingMethod" type="text" placeholder="Liquid" />
+            </div>
+            <div class="field">
+              <label>Cell chemistry</label>
+              <input id="mdCellChemistry" type="text" placeholder="LFP" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <div class="field">
+              <label>Fast charging time (min)</label>
+              <input id="mdFastChargingTime" type="number" placeholder="30" />
+            </div>
+            <div class="field">
+              <label>AC charging time (h)</label>
+              <input
+                id="mdAcChargingTime"
+                type="number"
+                step="0.1"
+                placeholder="8"
+              />
+            </div>
+            <div class="field">
+              <label>Warranty (years)</label>
+              <input id="mdWarrantyYears" type="number" placeholder="8" />
+            </div>
+            <div
+              class="field"
+              style="justify-content: flex-end; flex-direction: row; gap: 8px"
+            >
+              <button class="btn" id="mdSubmit" style="align-self: flex-end">
+                Add model
+              </button>
+              <button
+                class="btn secondary"
+                id="mdCancel"
+                style="display: none; align-self: flex-end"
+              >
+                Cancel edit
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label>Powertrain ID</label>
-          <input id="mdPowertrainId" type="number" placeholder="1">
-        </div>
-        <div class="field">
-          <label>CLTC range (km)</label>
-          <input id="mdCltcRange" type="number" placeholder="650">
-        </div>
-        <div class="field">
-          <label>Drive type ID</label>
-          <input id="mdDriveTypeId" type="number" placeholder="1">
+
+        <div class="panel">
+          <h2>All models</h2>
+          <div id="modelTableWrap"><div class="empty">Loading…</div></div>
         </div>
       </div>
+    </main>
 
-      <div class="row" style="margin-top:10px;">
-        <div class="field">
-          <label>Power (kW)</label>
-          <input id="mdEPower" type="number" placeholder="230">
-        </div>
-        <div class="field">
-          <label>Torque (Nm)</label>
-          <input id="mdETorque" type="number" placeholder="360">
-        </div>
-        <div class="field">
-          <label>Top speed (km/h)</label>
-          <input id="mdTopSpeed" type="number" placeholder="180">
-        </div>
-        <div class="field">
-          <label>0-100 (s)</label>
-          <input id="mdZeroToHundred" type="number" step="0.1" placeholder="5.9">
-        </div>
-      </div>
+    <script>
+      (function () {
+        // ---------- API base is always ../api/ ----------
+        var API_BASE = "../api/";
 
-      <div class="row" style="margin-top:10px;">
-        <div class="field">
-          <label>Price</label>
-          <input id="mdPrice" type="number" step="0.01" placeholder="45000">
-        </div>
-        <div class="field">
-          <label>Cell shape</label>
-          <input id="mdCellShape" type="text" placeholder="Prismatic">
-        </div>
-        <div class="field">
-          <label>Cooling method</label>
-          <input id="mdCoolingMethod" type="text" placeholder="Liquid">
-        </div>
-        <div class="field">
-          <label>Cell chemistry</label>
-          <input id="mdCellChemistry" type="text" placeholder="LFP">
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px;">
-        <div class="field">
-          <label>Fast charging time (min)</label>
-          <input id="mdFastChargingTime" type="number" placeholder="30">
-        </div>
-        <div class="field">
-          <label>AC charging time (h)</label>
-          <input id="mdAcChargingTime" type="number" step="0.1" placeholder="8">
-        </div>
-        <div class="field">
-          <label>Warranty (years)</label>
-          <input id="mdWarrantyYears" type="number" placeholder="8">
-        </div>
-        <div class="field" style="justify-content:flex-end; flex-direction:row; gap:8px;">
-          <button class="btn" id="mdSubmit" style="align-self:flex-end;">Add model</button>
-          <button class="btn secondary" id="mdCancel" style="display:none; align-self:flex-end;">Cancel edit</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>All models</h2>
-      <div id="modelTableWrap"><div class="empty">Loading…</div></div>
-    </div>
-  </div>
-
-</main>
-
-<script>
-(function(){
-
-  var API_BASE = localStorageSafe('apiBase') || '../';
-  document.getElementById('apiBase').value = API_BASE;
-
-  function localStorageSafe(){ return null; } // no browser storage used; in-memory only
-
-  document.getElementById('saveApiBase').addEventListener('click', function(){
-    API_BASE = document.getElementById('apiBase').value.trim();
-    if(!API_BASE.endsWith('/')) API_BASE += '/';
-    loadManufacturers();
-    loadModels();
-  });
-
-  // ---- tabs ----
-  var tabs = document.querySelectorAll('.tab');
-  tabs.forEach(function(tab){
-    tab.addEventListener('click', function(){
-      tabs.forEach(function(t){ t.classList.remove('active'); });
-      tab.classList.add('active');
-      document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
-      document.getElementById('view-' + tab.dataset.view).classList.add('active');
-    });
-  });
-
-  // ---- status banner ----
-  var statusEl = document.getElementById('status');
-  function showStatus(msg, ok){
-    statusEl.textContent = msg;
-    statusEl.className = 'status show ' + (ok ? 'ok' : 'err');
-    setTimeout(function(){ statusEl.classList.remove('show'); }, 3500);
-  }
-
-  // ---- manufacturers ----
-  var manTableWrap = document.getElementById('manTableWrap');
-  var manName = document.getElementById('manName');
-  var manCountry = document.getElementById('manCountry');
-  var manSubmit = document.getElementById('manSubmit');
-  var manCancel = document.getElementById('manCancel');
-  var manFormTitle = document.getElementById('manFormTitle');
-  var editingId = null;
-
-  function loadManufacturers(){
-    manTableWrap.innerHTML = '<div class="empty">Loading…</div>';
-    fetch(API_BASE + 'read-all-man.php')
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        var data = json.data || [];
-        if(!data.length){
-          manTableWrap.innerHTML = '<div class="empty">No manufacturers yet.</div>';
-          return;
-        }
-        var rows = data.map(function(m){
-          return '<tr>' +
-            '<td class="num">#' + m.id + '</td>' +
-            '<td>' + escapeHtml(m.name) + '</td>' +
-            '<td>' + escapeHtml(m.country) + '</td>' +
-            '<td class="actions"><button class="link-btn" data-edit="' + m.id + '">Edit</button></td>' +
-            '</tr>';
-        }).join('');
-        manTableWrap.innerHTML =
-          '<table><thead><tr><th>ID</th><th>Name</th><th>Country</th><th></th></tr></thead>' +
-          '<tbody>' + rows + '</tbody></table>';
-
-        manTableWrap.querySelectorAll('[data-edit]').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            var id = btn.dataset.edit;
-            var m = data.find(function(x){ return String(x.id) === String(id); });
-            if(!m) return;
-            editingId = id;
-            manName.value = m.name;
-            manCountry.value = m.country;
-            manFormTitle.textContent = 'Edit manufacturer #' + id;
-            manSubmit.textContent = 'Save changes';
-            manCancel.style.display = 'inline-block';
-            window.scrollTo({top:0, behavior:'smooth'});
-          });
-        });
-      })
-      .catch(function(err){
-        manTableWrap.innerHTML = '<div class="empty">Could not reach the API. Check the API base path above.</div>';
-      });
-  }
-
-  function resetManForm(){
-    editingId = null;
-    manName.value = '';
-    manCountry.value = '';
-    manFormTitle.textContent = 'Add manufacturer';
-    manSubmit.textContent = 'Add manufacturer';
-    manCancel.style.display = 'none';
-  }
-
-  manCancel.addEventListener('click', resetManForm);
-
-  manSubmit.addEventListener('click', function(){
-    var name = manName.value.trim();
-    var country = manCountry.value.trim();
-    if(!name || !country){
-      showStatus('Name and country are both required.', false);
-      return;
-    }
-
-    if(editingId){
-      fetch(API_BASE + 'update-man.php', {
-        method: 'PUT',
-        body: JSON.stringify({ id: Number(editingId), name: name, country: country })
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        if(json.status){
-          showStatus('Manufacturer updated.', true);
-          resetManForm();
-          loadManufacturers();
-        } else {
-          showStatus(json.message || 'Update failed.', false);
-        }
-      })
-      .catch(function(){ showStatus('Request failed.', false); });
-    } else {
-      fetch(API_BASE + 'create-man.php', {
-        method: 'POST',
-        body: JSON.stringify({ name: name, country: country })
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        if(json.status){
-          showStatus('Manufacturer added.', true);
-          resetManForm();
-          loadManufacturers();
-        } else {
-          showStatus(json.message || 'Create failed.', false);
-        }
-      })
-      .catch(function(){ showStatus('Request failed.', false); });
-    }
-  });
-
-  // ---- models ----
-  var modelTableWrap = document.getElementById('modelTableWrap');
-  var mdManufacturer = document.getElementById('mdManufacturer');
-  var mdModelName = document.getElementById('mdModelName');
-  var mdClassId = document.getElementById('mdClassId');
-  var mdReleaseYear = document.getElementById('mdReleaseYear');
-  var mdBatteryCapacity = document.getElementById('mdBatteryCapacity');
-  var mdPowertrainId = document.getElementById('mdPowertrainId');
-  var mdCltcRange = document.getElementById('mdCltcRange');
-  var mdDriveTypeId = document.getElementById('mdDriveTypeId');
-  var mdEPower = document.getElementById('mdEPower');
-  var mdETorque = document.getElementById('mdETorque');
-  var mdTopSpeed = document.getElementById('mdTopSpeed');
-  var mdZeroToHundred = document.getElementById('mdZeroToHundred');
-  var mdPrice = document.getElementById('mdPrice');
-  var mdCellShape = document.getElementById('mdCellShape');
-  var mdCoolingMethod = document.getElementById('mdCoolingMethod');
-  var mdCellChemistry = document.getElementById('mdCellChemistry');
-  var mdFastChargingTime = document.getElementById('mdFastChargingTime');
-  var mdAcChargingTime = document.getElementById('mdAcChargingTime');
-  var mdWarrantyYears = document.getElementById('mdWarrantyYears');
-  var mdSubmit = document.getElementById('mdSubmit');
-  var mdCancel = document.getElementById('mdCancel');
-  var modelFormTitle = document.getElementById('modelFormTitle');
-  var editingModelId = null;
-  var manufacturersCache = [];
-
-  function loadManufacturersForDropdown(){
-    fetch(API_BASE + 'read-all-man.php')
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        manufacturersCache = json.data || [];
-        if(!manufacturersCache.length){
-          mdManufacturer.innerHTML = '<option value="">Add a manufacturer first</option>';
-          return;
-        }
-        mdManufacturer.innerHTML = manufacturersCache.map(function(m){
-          return '<option value="' + m.id + '">' + escapeHtml(m.name) + '</option>';
-        }).join('');
-      })
-      .catch(function(){
-        mdManufacturer.innerHTML = '<option value="">Could not load manufacturers</option>';
-      });
-  }
-
-  function modelFormFields(){
-    return {
-      manufacturer_id: mdManufacturer,
-      model_name: mdModelName,
-      class_id: mdClassId,
-      release_year: mdReleaseYear,
-      battery_capacity: mdBatteryCapacity,
-      powertrain_id: mdPowertrainId,
-      cltc_range: mdCltcRange,
-      e_power: mdEPower,
-      e_torque: mdETorque,
-      top_speed: mdTopSpeed,
-      zero_to_hundred: mdZeroToHundred,
-      drive_type_id: mdDriveTypeId,
-      price: mdPrice,
-      cell_shape: mdCellShape,
-      cooling_method: mdCoolingMethod,
-      cell_chemistry: mdCellChemistry,
-      fast_charging_time: mdFastChargingTime,
-      ac_charging_time: mdAcChargingTime,
-      warranty_years: mdWarrantyYears
-    };
-  }
-
-  function resetModelForm(){
-    editingModelId = null;
-    var fields = modelFormFields();
-    Object.keys(fields).forEach(function(key){
-      if(key === 'manufacturer_id') return;
-      fields[key].value = '';
-    });
-    modelFormTitle.textContent = 'Add model';
-    mdSubmit.textContent = 'Add model';
-    mdCancel.style.display = 'none';
-  }
-
-  mdCancel.addEventListener('click', resetModelForm);
-
-  mdSubmit.addEventListener('click', function(){
-    var fields = modelFormFields();
-    var data = {};
-    var missing = false;
-    Object.keys(fields).forEach(function(key){
-      var val = fields[key].value.trim ? fields[key].value.trim() : fields[key].value;
-      if(val === '') missing = true;
-      data[key] = val;
-    });
-    if(missing){
-      showStatus('All model fields are required.', false);
-      return;
-    }
-
-    if(editingModelId){
-      data.id = Number(editingModelId);
-      fetch(API_BASE + 'update-model.php', {
-        method: 'PUT',
-        body: JSON.stringify(data)
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        if(json.status){
-          showStatus('Model updated.', true);
-          resetModelForm();
-          loadModels();
-        } else {
-          showStatus(json.message || 'Update failed.', false);
-        }
-      })
-      .catch(function(){ showStatus('Request failed.', false); });
-    } else {
-      fetch(API_BASE + 'create-model.php', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        if(json.status){
-          showStatus('Model added.', true);
-          resetModelForm();
-          loadModels();
-        } else {
-          showStatus(json.message || 'Create failed.', false);
-        }
-      })
-      .catch(function(){ showStatus('Request failed.', false); });
-    }
-  });
-
-  function loadModels(){
-    modelTableWrap.innerHTML = '<div class="empty">Loading…</div>';
-    fetch(API_BASE + 'read-all-model.php')
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        var data = json.data || [];
-        if(!data.length){
-          modelTableWrap.innerHTML = '<div class="empty">No models yet.</div>';
-          return;
-        }
-        var rows = data.map(function(m){
-          return '<tr>' +
-            '<td>' + escapeHtml(m.model_name) + '</td>' +
-            '<td class="num">' + escapeHtml(m.release_year) + '</td>' +
-            '<td class="num">' + escapeHtml(m.battery_capacity) + ' kWh</td>' +
-            '<td class="num">' + escapeHtml(m.cltc_range) + ' km</td>' +
-            '<td class="num">' + escapeHtml(m.top_speed) + ' km/h</td>' +
-            '<td class="num">$' + escapeHtml(m.price) + '</td>' +
-            '<td class="actions"><button class="link-btn" data-edit="' + m.id + '">Edit</button></td>' +
-            '</tr>';
-        }).join('');
-        modelTableWrap.innerHTML =
-          '<table><thead><tr><th>Model</th><th>Year</th><th>Battery</th><th>Range</th><th>Top speed</th><th>Price</th><th></th></tr></thead>' +
-          '<tbody>' + rows + '</tbody></table>';
-
-        modelTableWrap.querySelectorAll('[data-edit]').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            var id = btn.dataset.edit;
-            var m = data.find(function(x){ return String(x.id) === String(id); });
-            if(!m){
-              showStatus('This model has no id in the API response yet — see the note in chat.', false);
-              return;
-            }
-            editingModelId = id;
-            var fields = modelFormFields();
-            Object.keys(fields).forEach(function(key){
-              fields[key].value = m[key] !== undefined ? m[key] : '';
+        // ---- tabs ----
+        var tabs = document.querySelectorAll(".tab");
+        tabs.forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            tabs.forEach(function (t) {
+              t.classList.remove("active");
             });
-            modelFormTitle.textContent = 'Edit model #' + id;
-            mdSubmit.textContent = 'Save changes';
-            mdCancel.style.display = 'inline-block';
-            window.scrollTo({top:0, behavior:'smooth'});
+            tab.classList.add("active");
+            document.querySelectorAll(".view").forEach(function (v) {
+              v.classList.remove("active");
+            });
+            document
+              .getElementById("view-" + tab.dataset.view)
+              .classList.add("active");
           });
         });
-      })
-      .catch(function(){
-        modelTableWrap.innerHTML = '<div class="empty">Could not reach the API. Check the API base path above.</div>';
-      });
-  }
 
-  loadManufacturersForDropdown();
+        // ---- status banner ----
+        var statusEl = document.getElementById("status");
+        function showStatus(msg, ok) {
+          statusEl.textContent = msg;
+          statusEl.className = "status show " + (ok ? "ok" : "err");
+          setTimeout(function () {
+            statusEl.classList.remove("show");
+          }, 3500);
+        }
 
-  function escapeHtml(str){
-    if(str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
+        // ---- manufacturers ----
+        var manTableWrap = document.getElementById("manTableWrap");
+        var manName = document.getElementById("manName");
+        var manCountry = document.getElementById("manCountry");
+        var manSubmit = document.getElementById("manSubmit");
+        var manCancel = document.getElementById("manCancel");
+        var manFormTitle = document.getElementById("manFormTitle");
+        var editingId = null;
 
-  loadManufacturers();
-  loadModels();
-})();
-</script>
+        function loadManufacturers() {
+          manTableWrap.innerHTML = '<div class="empty">Loading…</div>';
+          fetch(API_BASE + "read-all-man.php")
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (json) {
+              var data = json.data || [];
+              if (!data.length) {
+                manTableWrap.innerHTML =
+                  '<div class="empty">No manufacturers yet.</div>';
+                return;
+              }
+              var rows = data
+                .map(function (m) {
+                  return (
+                    "<tr>" +
+                    '<td class="num">#' +
+                    m.id +
+                    "</td>" +
+                    "<td>" +
+                    escapeHtml(m.name) +
+                    "</td>" +
+                    "<td>" +
+                    escapeHtml(m.country) +
+                    "</td>" +
+                    '<td class="actions"><button class="link-btn" data-edit="' +
+                    m.id +
+                    '">Edit</button></td>' +
+                    "</tr>"
+                  );
+                })
+                .join("");
+              manTableWrap.innerHTML =
+                "<table><thead><tr><th>ID</th><th>Name</th><th>Country</th><th></th></tr></thead>" +
+                "<tbody>" +
+                rows +
+                "</tbody></table>";
 
-</body>
+              manTableWrap
+                .querySelectorAll("[data-edit]")
+                .forEach(function (btn) {
+                  btn.addEventListener("click", function () {
+                    var id = btn.dataset.edit;
+                    var m = data.find(function (x) {
+                      return String(x.id) === String(id);
+                    });
+                    if (!m) return;
+                    editingId = id;
+                    manName.value = m.name;
+                    manCountry.value = m.country;
+                    manFormTitle.textContent = "Edit manufacturer #" + id;
+                    manSubmit.textContent = "Save changes";
+                    manCancel.style.display = "inline-block";
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  });
+                });
+            })
+            .catch(function (err) {
+              manTableWrap.innerHTML =
+                '<div class="empty">Could not reach the API. Check that your API is running at <code>../api/</code>.</div>';
+            });
+        }
+
+        function resetManForm() {
+          editingId = null;
+          manName.value = "";
+          manCountry.value = "";
+          manFormTitle.textContent = "Add manufacturer";
+          manSubmit.textContent = "Add manufacturer";
+          manCancel.style.display = "none";
+        }
+
+        manCancel.addEventListener("click", resetManForm);
+
+        manSubmit.addEventListener("click", function () {
+          var name = manName.value.trim();
+          var country = manCountry.value.trim();
+          if (!name || !country) {
+            showStatus("Name and country are both required.", false);
+            return;
+          }
+
+          if (editingId) {
+            fetch(API_BASE + "update-man.php", {
+              method: "PUT",
+              body: JSON.stringify({
+                id: Number(editingId),
+                name: name,
+                country: country,
+              }),
+            })
+              .then(function (r) {
+                return r.json();
+              })
+              .then(function (json) {
+                if (json.status) {
+                  showStatus("Manufacturer updated.", true);
+                  resetManForm();
+                  loadManufacturers();
+                } else {
+                  showStatus(json.message || "Update failed.", false);
+                }
+              })
+              .catch(function () {
+                showStatus("Request failed.", false);
+              });
+          } else {
+            fetch(API_BASE + "create-man.php", {
+              method: "POST",
+              body: JSON.stringify({ name: name, country: country }),
+            })
+              .then(function (r) {
+                return r.json();
+              })
+              .then(function (json) {
+                if (json.status) {
+                  showStatus("Manufacturer added.", true);
+                  resetManForm();
+                  loadManufacturers();
+                } else {
+                  showStatus(json.message || "Create failed.", false);
+                }
+              })
+              .catch(function () {
+                showStatus("Request failed.", false);
+              });
+          }
+        });
+
+        // ---- models ----
+        var modelTableWrap = document.getElementById("modelTableWrap");
+        var mdManufacturer = document.getElementById("mdManufacturer");
+        var mdModelName = document.getElementById("mdModelName");
+        var mdClassId = document.getElementById("mdClassId");
+        var mdReleaseYear = document.getElementById("mdReleaseYear");
+        var mdBatteryCapacity = document.getElementById("mdBatteryCapacity");
+        var mdPowertrainId = document.getElementById("mdPowertrainId");
+        var mdCltcRange = document.getElementById("mdCltcRange");
+        var mdDriveTypeId = document.getElementById("mdDriveTypeId");
+        var mdEPower = document.getElementById("mdEPower");
+        var mdETorque = document.getElementById("mdETorque");
+        var mdTopSpeed = document.getElementById("mdTopSpeed");
+        var mdZeroToHundred = document.getElementById("mdZeroToHundred");
+        var mdPrice = document.getElementById("mdPrice");
+        var mdCellShape = document.getElementById("mdCellShape");
+        var mdCoolingMethod = document.getElementById("mdCoolingMethod");
+        var mdCellChemistry = document.getElementById("mdCellChemistry");
+        var mdFastChargingTime = document.getElementById("mdFastChargingTime");
+        var mdAcChargingTime = document.getElementById("mdAcChargingTime");
+        var mdWarrantyYears = document.getElementById("mdWarrantyYears");
+        var mdSubmit = document.getElementById("mdSubmit");
+        var mdCancel = document.getElementById("mdCancel");
+        var modelFormTitle = document.getElementById("modelFormTitle");
+        var editingModelId = null;
+        var manufacturersCache = [];
+
+        function loadManufacturersForDropdown() {
+          fetch(API_BASE + "read-all-man.php")
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (json) {
+              manufacturersCache = json.data || [];
+              if (!manufacturersCache.length) {
+                mdManufacturer.innerHTML =
+                  '<option value="">Add a manufacturer first</option>';
+                return;
+              }
+              mdManufacturer.innerHTML = manufacturersCache
+                .map(function (m) {
+                  return (
+                    '<option value="' +
+                    m.id +
+                    '">' +
+                    escapeHtml(m.name) +
+                    "</option>"
+                  );
+                })
+                .join("");
+            })
+            .catch(function () {
+              mdManufacturer.innerHTML =
+                '<option value="">Could not load manufacturers</option>';
+            });
+        }
+
+        function modelFormFields() {
+          return {
+            manufacturer_id: mdManufacturer,
+            model_name: mdModelName,
+            class_id: mdClassId,
+            release_year: mdReleaseYear,
+            battery_capacity: mdBatteryCapacity,
+            powertrain_id: mdPowertrainId,
+            cltc_range: mdCltcRange,
+            e_power: mdEPower,
+            e_torque: mdETorque,
+            top_speed: mdTopSpeed,
+            zero_to_hundred: mdZeroToHundred,
+            drive_type_id: mdDriveTypeId,
+            price: mdPrice,
+            cell_shape: mdCellShape,
+            cooling_method: mdCoolingMethod,
+            cell_chemistry: mdCellChemistry,
+            fast_charging_time: mdFastChargingTime,
+            ac_charging_time: mdAcChargingTime,
+            warranty_years: mdWarrantyYears,
+          };
+        }
+
+        function resetModelForm() {
+          editingModelId = null;
+          var fields = modelFormFields();
+          Object.keys(fields).forEach(function (key) {
+            if (key === "manufacturer_id") return;
+            fields[key].value = "";
+          });
+          modelFormTitle.textContent = "Add model";
+          mdSubmit.textContent = "Add model";
+          mdCancel.style.display = "none";
+        }
+
+        mdCancel.addEventListener("click", resetModelForm);
+
+        mdSubmit.addEventListener("click", function () {
+          var fields = modelFormFields();
+          var data = {};
+          var missing = false;
+          Object.keys(fields).forEach(function (key) {
+            var val = fields[key].value.trim
+              ? fields[key].value.trim()
+              : fields[key].value;
+            if (val === "") missing = true;
+            data[key] = val;
+          });
+          if (missing) {
+            showStatus("All model fields are required.", false);
+            return;
+          }
+
+          if (editingModelId) {
+            data.id = Number(editingModelId);
+            fetch(API_BASE + "update-model.php", {
+              method: "PUT",
+              body: JSON.stringify(data),
+            })
+              .then(function (r) {
+                return r.json();
+              })
+              .then(function (json) {
+                if (json.status) {
+                  showStatus("Model updated.", true);
+                  resetModelForm();
+                  loadModels();
+                } else {
+                  showStatus(json.message || "Update failed.", false);
+                }
+              })
+              .catch(function () {
+                showStatus("Request failed.", false);
+              });
+          } else {
+            fetch(API_BASE + "create-model.php", {
+              method: "POST",
+              body: JSON.stringify(data),
+            })
+              .then(function (r) {
+                return r.json();
+              })
+              .then(function (json) {
+                if (json.status) {
+                  showStatus("Model added.", true);
+                  resetModelForm();
+                  loadModels();
+                } else {
+                  showStatus(json.message || "Create failed.", false);
+                }
+              })
+              .catch(function () {
+                showStatus("Request failed.", false);
+              });
+          }
+        });
+
+        function loadModels() {
+          modelTableWrap.innerHTML = '<div class="empty">Loading…</div>';
+          fetch(API_BASE + "read-all-model.php")
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (json) {
+              var data = json.data || [];
+              if (!data.length) {
+                modelTableWrap.innerHTML =
+                  '<div class="empty">No models yet.</div>';
+                return;
+              }
+              var rows = data
+                .map(function (m) {
+                  return (
+                    "<tr>" +
+                    "<td>" +
+                    escapeHtml(m.model_name) +
+                    "</td>" +
+                    '<td class="num">' +
+                    escapeHtml(m.release_year) +
+                    "</td>" +
+                    '<td class="num">' +
+                    escapeHtml(m.battery_capacity) +
+                    " kWh</td>" +
+                    '<td class="num">' +
+                    escapeHtml(m.cltc_range) +
+                    " km</td>" +
+                    '<td class="num">' +
+                    escapeHtml(m.top_speed) +
+                    " km/h</td>" +
+                    '<td class="num">$' +
+                    escapeHtml(m.price) +
+                    "</td>" +
+                    '<td class="actions"><button class="link-btn" data-edit="' +
+                    m.id +
+                    '">Edit</button></td>' +
+                    "</tr>"
+                  );
+                })
+                .join("");
+              modelTableWrap.innerHTML =
+                "<table><thead><tr><th>Model</th><th>Year</th><th>Battery</th><th>Range</th><th>Top speed</th><th>Price</th><th></th></tr></thead>" +
+                "<tbody>" +
+                rows +
+                "</tbody></table>";
+
+              modelTableWrap
+                .querySelectorAll("[data-edit]")
+                .forEach(function (btn) {
+                  btn.addEventListener("click", function () {
+                    var id = btn.dataset.edit;
+                    var m = data.find(function (x) {
+                      return String(x.id) === String(id);
+                    });
+                    if (!m) {
+                      showStatus(
+                        "Model not found. Please refresh the list.",
+                        false,
+                      );
+                      return;
+                    }
+                    editingModelId = id;
+                    var fields = modelFormFields();
+                    Object.keys(fields).forEach(function (key) {
+                      fields[key].value = m[key] !== undefined ? m[key] : "";
+                    });
+                    modelFormTitle.textContent = "Edit model #" + id;
+                    mdSubmit.textContent = "Save changes";
+                    mdCancel.style.display = "inline-block";
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  });
+                });
+            })
+            .catch(function () {
+              modelTableWrap.innerHTML =
+                '<div class="empty">Could not reach the API. Check that your API is running at <code>../api/</code>.</div>';
+            });
+        }
+
+        loadManufacturersForDropdown();
+
+        function escapeHtml(str) {
+          if (str === null || str === undefined) return "";
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        loadManufacturers();
+        loadModels();
+      })();
+    </script>
+  </body>
 </html>
